@@ -4,21 +4,22 @@
 #   gltest tests/integration/ -v -s --network localnet
 #   gltest tests/integration/ -v -s --network testnet_bradbury
 #
-# `contract_path` is RELATIVE to this config file (tests/). The v3 contracts
-# live one directory up so we point at `../` and reference them by filename
-# in each test's get_contract_factory("...") call.
-contract_path: ../
+# Schema: gltest >= 0.29.x (paths.contracts + networks.default nested,
+# per-network chain_type required).
 
-default_network: localnet
+paths:
+  contracts: ../
 
 networks:
+  default: localnet
+
   localnet:
     # GenLayer Studio / GLSim running locally.
-    #   genlayer up            (full Studio + Docker)
-    #   glsim --port 4000      (lightweight, no Docker)
+    #   genlayer up --headless --numValidators 5    (full Studio + Docker)
     # Default RPC URL is read from the local Studio / GLSim process.
     id: 61999
     url: http://127.0.0.1:4000/api
+    chain_type: localnet
     accounts:
       # Default GLSim funded accounts. Override via ACCOUNT_PRIVATE_KEY_1 env
       # if you want to use your own keys against a custom localnet.
@@ -30,6 +31,7 @@ networks:
     # private keys via env. Never commit raw keys.
     id: 62027
     url: https://genlayer-testnet.rpc.caldera.xyz/http
+    chain_type: testnet_bradbury
     accounts:
       - "${ACCOUNT_PRIVATE_KEY_1}"
       - "${ACCOUNT_PRIVATE_KEY_2}"
