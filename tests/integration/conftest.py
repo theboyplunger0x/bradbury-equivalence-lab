@@ -160,6 +160,21 @@ def llm_response_price_float_leak(price_usd: float) -> str:
     return json.dumps({"price_micro_usd": float(price_usd)})
 
 
+def llm_response_price_micro_string_float_leak(price_usd: float) -> str:
+    """LLM violates the integer-only rule and returns a *string* containing a float.
+
+    Exercises the STRING branch of the parser in 03_v3:_pick_price_micro_with_llm —
+    `isinstance(val, str)` then `_DIGITS_ONLY_RE.match(s)` MUST reject because
+    the string carries a decimal point (or 'e' / sign / etc). This is distinct
+    from the numeric-float case which trips the TYPE guard at the `else` arm
+    of the same function. We multiply price_usd by 1e9 (so the magnitude is
+    realistic) and then cast to str — Python's float repr keeps the trailing
+    `.0` or scientific notation, both of which are non-digit-only and must be
+    rejected before the int() cast.
+    """
+    return json.dumps({"price_micro_usd": str(price_usd * 1e9)})
+
+
 def llm_response_garbage() -> str:
     """LLM returned a malformed shape — drives [LLM_ERROR] path."""
     return json.dumps({"not_the_right_field": "lol"})

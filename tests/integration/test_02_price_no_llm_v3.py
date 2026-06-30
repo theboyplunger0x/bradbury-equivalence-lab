@@ -31,6 +31,27 @@ DEXSCREENER_REGEX = r".*api\.dexscreener\.com/.*"
 PRICE_SCALE = 1_000_000_000
 
 
+def _leader_error_payload(tx_receipt) -> str:
+    """Best-effort extraction of the leader receipt's error payload string.
+
+    Mirrors the helper in test_03 — see that file for the rationale. Returns
+    "" if the structure is missing so callers can skip the assertion cleanly
+    rather than fake a pass.
+    """
+    try:
+        receipts = tx_receipt["consensus_data"]["leader_receipt"]
+        if not receipts:
+            return ""
+        result = receipts[0].get("result") or {}
+        if isinstance(result, dict):
+            payload = result.get("payload")
+            if isinstance(payload, str):
+                return payload
+        return str(result)
+    except (KeyError, TypeError, IndexError):
+        return ""
+
+
 def _deploy_btc_base(factory):
     """Deploy a fresh BTC/base price contract."""
     return factory.deploy(args=["BTC", "base"])
@@ -156,3 +177,13 @@ def test_external_4xx_surfaces_external_error(vm_context, status_code):
     state = contract.get_price(args=[]).call()
     assert state["resolved"] is False, "no state should change on external 4xx failure"
     assert state["price_micro_usd"] == "0"
+
+    # Tighten: per SKILL.md canonical scheme the error class must surface as
+    # "[EXTERNAL]" so deterministic validators byte-match. Skip cleanly if the
+    # harness build does not expose the leader payload — better than faking.
+    err = _leader_error_payload(tx_receipt)
+    if err:
+        assert "[EXTERNAL]" in err, (
+            f"expected [EXTERNAL] prefix in leader payload for {status_code}, "
+            f"got: {err!r}"
+        )

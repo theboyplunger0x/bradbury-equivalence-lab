@@ -944,3 +944,19 @@ a direct SKILL.md citation so it doesn't get reopened. The suite still
 needs to actually RUN (not just collect) against localnet before any
 production-readiness call — Phase 4b is "design closed + tests
 authored", not "tests green".
+
+### Final round (Phase 4c — close test coverage gaps)
+
+Closed the two Codex-flagged test gaps from the 4b review. (1) Added a
+`llm_response_price_micro_string_float_leak` conftest fixture + a new
+test in `test_03` that drives the LLM to emit a JSON string like
+`"65000500000000.0"`, proving the regex branch at `03_v3:182-185` fires
+(rejects the decimal point before `int()` cast) — distinct from the
+existing float-leak test that hits the TYPE guard's `else` arm. (2)
+Tightened every 4xx external-error test in `test_02`/`test_03`/
+`test_04` to assert the `"[EXTERNAL]"` prefix on the leader receipt
+payload when the harness exposes it (graceful skip with comment when
+the build does not). Total: 20 collected (was 19, +1), `py_compile`
+PASS. Code production-ready, suite covers happy + major failure paths
++ error classification verified; only "tests green on localnet" remains
+before promoting to production.

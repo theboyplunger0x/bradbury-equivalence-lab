@@ -48,6 +48,27 @@ EVIDENCE_REGEX_ESPN = r".*espn\.com.*"
 LLM_OUTCOME_PROMPT_REGEX = r".*settling a head-to-head match market.*"
 
 
+def _leader_error_payload(tx_receipt) -> str:
+    """Best-effort extraction of the leader receipt's error payload string.
+
+    Mirrors the helpers in test_02 / test_03 — see those files for the
+    rationale. Returns "" if the structure is missing so the caller can skip
+    the assertion cleanly rather than fake a pass.
+    """
+    try:
+        receipts = tx_receipt["consensus_data"]["leader_receipt"]
+        if not receipts:
+            return ""
+        result = receipts[0].get("result") or {}
+        if isinstance(result, dict):
+            payload = result.get("payload")
+            if isinstance(payload, str):
+                return payload
+        return str(result)
+    except (KeyError, TypeError, IndexError):
+        return ""
+
+
 def _deploy(factory, team_a: str = "Argentina", team_b: str = "Brazil"):
     return factory.deploy(args=[team_a, team_b, list(EVIDENCE_URLS)])
 
@@ -219,6 +240,17 @@ def test_external_4xx_evidence_surfaces_external_error(vm_context, status_code):
     state = contract.get_outcome(args=[]).call()
     assert state["resolved"] is False
     assert state["outcome"] == "UNKNOWN"  # init default unchanged
+
+    # Tighten: SKILL.md canonical scheme requires the leader to surface
+    # "[EXTERNAL]" so deterministic validators byte-match. Skip cleanly if
+    # the harness build does not expose the leader payload — faking is worse
+    # than missing coverage here.
+    err = _leader_error_payload(tx_receipt)
+    if err:
+        assert "[EXTERNAL]" in err, (
+            f"expected [EXTERNAL] prefix in leader payload for {status_code}, "
+            f"got: {err!r}"
+        )
 
 
 # --- LLM_ERROR --------------------------------------------------------------

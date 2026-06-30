@@ -25,6 +25,7 @@ from conftest import (
     llm_response_garbage,
     llm_response_price,
     llm_response_price_float_leak,
+    llm_response_price_micro_string_float_leak,
 )
 
 
@@ -33,6 +34,31 @@ DEXSCREENER_REGEX = r".*api\.dexscreener\.com/.*"
 LLM_PRICE_PROMPT_REGEX = r".*extracting a single numeric field.*"
 
 PRICE_SCALE = 1_000_000_000
+
+
+def _leader_error_payload(tx_receipt) -> str:
+    """Best-effort extraction of the leader receipt's error payload string.
+
+    The gltest harness decodes the leader's `result` field into
+    {"raw":..., "status": "rollback"/"contract_error"/..., "payload": "<utf-8>"}.
+    When the contract raises gl.vm.UserError("[EXTERNAL] ..."), the payload
+    carries that prefixed message. Returns "" if the structure is missing —
+    callers should then skip the substring assertion explicitly rather than
+    fake a pass.
+    """
+    try:
+        receipts = tx_receipt["consensus_data"]["leader_receipt"]
+        if not receipts:
+            return ""
+        result = receipts[0].get("result") or {}
+        if isinstance(result, dict):
+            payload = result.get("payload")
+            if isinstance(payload, str):
+                return payload
+        # Fallback: stringify whatever is there so substring matching still works.
+        return str(result)
+    except (KeyError, TypeError, IndexError):
+        return ""
 
 
 def _deploy_btc_base(factory):
@@ -145,6 +171,60 @@ def test_llm_error_float_leak_blocks_consensus(vm_context):
 
 
 @pytest.mark.requires_mocks
+def test_llm_error_string_float_leak_blocks_via_regex(vm_context):
+    """LLM returns a STRING float under price_micro_usd → [LLM_ERROR] via regex.
+
+    Distinct from the numeric-float case (`test_llm_error_float_leak_*`):
+    that one trips the TYPE guard's `else` branch because the value is a
+    Python float. THIS one exercises the *string* branch:
+      val = "65000500000000.0"   # str(float * 1e9)
+      isinstance(val, str) → True
+      _DIGITS_ONLY_RE.match(s)  → None (decimal point breaks digit-only)
+      → raise gl.vm.UserError("[LLM_ERROR] non-digit price_micro_usd string: ...")
+
+    The regex branch (03_v3:182-185) was previously uncovered by any test —
+    Codex round-2 verification flagged the gap. Per the canonical scheme,
+    validators DISAGREE on LLM_ERROR and consensus retries leader rotation;
+    after rotations exhaust, tx execution fails and state is unchanged.
+    """
+    factory = get_contract_factory("PriceLlmFieldOnly", source_file=CONTRACT_FILENAME)
+
+    payload = dexscreener_payload_btc_base(price_usd="65000.5", liquidity_usd="999")
+    vm_context.mock_web(
+        DEXSCREENER_REGEX,
+        {"status": 200, "body": payload},
+    )
+    # The LLM emits a string that LOOKS numeric but carries a decimal point
+    # (Python's str(float) representation). The digit-only regex must reject.
+    vm_context.mock_llm(
+        LLM_PRICE_PROMPT_REGEX,
+        llm_response_price_micro_string_float_leak(65000.5),
+    )
+
+    contract = _deploy_btc_base(factory)
+
+    tx_receipt = contract.resolve(args=[]).transact()
+    assert not tx_execution_succeeded(tx_receipt), (
+        "LLM_ERROR: string-float leak must NOT settle as successful execution"
+    )
+
+    state = contract.get_price(args=[]).call()
+    assert state["resolved"] is False
+    assert state["price_micro_usd"] == "0"
+
+    # Confirm the failure trace specifically names the LLM_ERROR class — this
+    # is what proves we hit the regex branch and not some other guard.
+    err = _leader_error_payload(tx_receipt)
+    if err:
+        assert "[LLM_ERROR]" in err, (
+            f"expected [LLM_ERROR] prefix in leader payload, got: {err!r}"
+        )
+    # else: leader payload not exposed by this harness build; tx-fail + state
+    # check above is the strongest assertion available. Tightening this would
+    # require gltest to surface a typed error API.
+
+
+@pytest.mark.requires_mocks
 @pytest.mark.parametrize("status_code", [400, 404])
 def test_external_4xx_dexscreener_surfaces_external_error(vm_context, status_code):
     """DexScreener returns 4xx → contract throws [EXTERNAL]; LLM never runs.
@@ -175,6 +255,16 @@ def test_external_4xx_dexscreener_surfaces_external_error(vm_context, status_cod
     state = contract.get_price(args=[]).call()
     assert state["resolved"] is False
     assert state["price_micro_usd"] == "0"
+
+    # Tighten: per SKILL.md the canonical error class must surface as
+    # "[EXTERNAL]" so the deterministic helper byte-matches across replicas.
+    # If the harness doesn't expose the payload, we skip rather than fake.
+    err = _leader_error_payload(tx_receipt)
+    if err:
+        assert "[EXTERNAL]" in err, (
+            f"expected [EXTERNAL] prefix in leader payload for {status_code}, "
+            f"got: {err!r}"
+        )
 
 
 @pytest.mark.requires_mocks
