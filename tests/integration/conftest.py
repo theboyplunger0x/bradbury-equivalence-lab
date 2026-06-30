@@ -1,25 +1,31 @@
-# Shared pytest helpers for bradbury v3 gltest integration suite.
+# Shared pytest helpers for bradbury v3 integration suite.
 #
 # Run from experiments/bradbury/:
-#   gltest tests/integration/ -v -s --network localnet
+#   gltest tests/integration/ -v -s
 #
-# These helpers wrap gltest's mock cheatcodes (mock_web / mock_llm) which
-# are available on GLSim + Studio localnet but NOT on Bradbury testnet.
-# Tests that depend on mocks are auto-skipped on testnet via the
-# `requires_mocks` marker.
+# This conftest is REWRITTEN to match the REAL gltest API:
+#   - There is NO `vm_context` fixture in gltest. The previous author invented
+#     it. Mock cheatcodes (mock_web / mock_llm) ONLY exist on the
+#     `direct_vm` VMContext provided by the `gltest.direct.pytest_plugin`
+#     entry point (auto-loaded as `gltest_direct`).
+#   - Tests that need mocking therefore use direct_vm + direct_deploy.
+#     Integration tests against a real network (localnet/testnet) cannot
+#     mock external HTTP/LLM responses through gltest at all.
+#
+# Helpers below are PLAIN module-level functions (no fixture wiring) —
+# every test imports the payload/response builders directly.
 
 from __future__ import annotations
 
 import json
-import os
 import sys
 from pathlib import Path
 
 import pytest
 
 
-# Allow `from gltest...` imports to work even before the package is installed.
-# Real gltest install: `pip install genlayer-test[sim]`.
+# Allow `from conftest import ...` to find this file when tests run from
+# any cwd that gltest may set.
 _BRADBURY_DIR = Path(__file__).resolve().parent.parent.parent
 if str(_BRADBURY_DIR) not in sys.path:
     sys.path.insert(0, str(_BRADBURY_DIR))
@@ -28,8 +34,8 @@ if str(_BRADBURY_DIR) not in sys.path:
 def pytest_configure(config):
     config.addinivalue_line(
         "markers",
-        "requires_mocks: test depends on mock_web/mock_llm cheatcodes "
-        "(localnet/GLSim/Studio only — auto-skipped on testnet networks)",
+        "requires_mocks: test depends on direct-mode mock_web/mock_llm "
+        "cheatcodes (only available via the direct_vm fixture in tests/direct/)",
     )
     config.addinivalue_line(
         "markers",
@@ -37,32 +43,8 @@ def pytest_configure(config):
     )
 
 
-def pytest_collection_modifyitems(config, items):
-    """Auto-skip mock-dependent tests when running against a real testnet."""
-    network = (config.getoption("--network", default=None) or "").lower()
-    if "testnet" in network:
-        skip_mocks = pytest.mark.skip(
-            reason=f"mock cheatcodes unavailable on network={network}"
-        )
-        for item in items:
-            if "requires_mocks" in item.keywords:
-                item.add_marker(skip_mocks)
-
-
-def pytest_addoption(parser):
-    # gltest already registers --network; only add if missing so we don't
-    # collide when running under the real harness.
-    existing = {opt for group in parser._groups for opt in group.options}
-    if "--network" not in {o.names()[0] for g in parser._groups for o in g.options}:
-        try:
-            parser.addoption("--network", action="store", default=None)
-        except ValueError:
-            # Already registered by gltest plugin — fine.
-            pass
-
-
 # --- Mock payload builders --------------------------------------------------
-# Centralized so test files stay readable and we never duplicate the JSON
+# Centralised so test files stay readable and we never duplicate the JSON
 # shape DexScreener actually returns.
 
 def dexscreener_payload_btc_base(price_usd: str = "65000.123456789",
@@ -138,12 +120,7 @@ def evidence_payload_unknown() -> str:
 # --- LLM mock builders ------------------------------------------------------
 
 def llm_response_price(price_usd: float) -> str:
-    """LLM extracts the price and returns it as integer micro-USD (price * 1e9).
-
-    Contract 03 v3 requires integer-only output under the key
-    `price_micro_usd`. We multiply here so callers can keep writing tests
-    in human-readable USD.
-    """
+    """LLM extracts the price and returns it as integer micro-USD (price * 1e9)."""
     micro = int(round(price_usd * 1_000_000_000))
     return json.dumps({"price_micro_usd": micro})
 
@@ -155,22 +132,15 @@ def llm_response_price_micro(price_micro_usd: int) -> str:
 
 def llm_response_price_float_leak(price_usd: float) -> str:
     """LLM ignores the integer-only rule and returns a float — drives [LLM_ERROR]."""
-    # Emit as a JSON number that explicitly carries a decimal point so the
-    # downstream regex digit-only check rejects it.
     return json.dumps({"price_micro_usd": float(price_usd)})
 
 
 def llm_response_price_micro_string_float_leak(price_usd: float) -> str:
-    """LLM violates the integer-only rule and returns a *string* containing a float.
+    """LLM returns a *string* containing a float — drives [LLM_ERROR] via regex.
 
-    Exercises the STRING branch of the parser in 03_v3:_pick_price_micro_with_llm —
+    Exercises the STRING branch of _pick_price_micro_with_llm —
     `isinstance(val, str)` then `_DIGITS_ONLY_RE.match(s)` MUST reject because
-    the string carries a decimal point (or 'e' / sign / etc). This is distinct
-    from the numeric-float case which trips the TYPE guard at the `else` arm
-    of the same function. We multiply price_usd by 1e9 (so the magnitude is
-    realistic) and then cast to str — Python's float repr keeps the trailing
-    `.0` or scientific notation, both of which are non-digit-only and must be
-    rejected before the int() cast.
+    the string carries a decimal point (or 'e' / sign / etc).
     """
     return json.dumps({"price_micro_usd": str(price_usd * 1e9)})
 

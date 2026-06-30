@@ -960,3 +960,74 @@ the build does not). Total: 20 collected (was 19, +1), `py_compile`
 PASS. Code production-ready, suite covers happy + major failure paths
 + error classification verified; only "tests green on localnet" remains
 before promoting to production.
+
+### Phase 4d — test rewrite (real gltest API)
+
+Marcos ran the suite locally and the import phase exploded immediately:
+the Phase 4/4b/4c tests were authored against a **fictional `vm_context`
+fixture** that does not exist anywhere in `gltest`. The recon caught
+the same thing — the real `gltest` plugin exposes a different surface
+entirely, and our previous integration tests were silently conflating
+two test modes (a hypothetical "live-with-mocks" mode and the actual
+direct-VM mode) that don't exist together. Credit to Marcos's local
+run for surfacing this — collection had been green only because no
+one had actually invoked `gltest` against the integration directory
+end-to-end.
+
+All four files under `tests/integration/` were rewritten against the
+**real** `gltest` API, specifically the `gltest.direct.pytest_plugin`
+surface that ships mock support:
+
+- `direct_vm` — provides `mock_web(url, payload_or_exception)`,
+  `mock_llm(prompt_substring, response_or_exception)`, and
+  `expect_revert("[PREFIX]")` for substring-matching the contract's
+  `gl.vm.UserError` message.
+- `direct_deploy` — deploys the contract into the local VM with the
+  constructor args (e.g. CSV evidence URLs).
+- Direct-mode proxy contracts use the clean `contract.resolve()` /
+  `contract.get_price()` form — no `.transact()/.call()` chain, no
+  `tx_execution_succeeded()` assertion. Failures are caught by
+  wrapping the call in `with direct_vm.expect_revert("[PREFIX]"):`.
+
+`conftest.py` lost the fictional `vm_context` fixture and the testnet
+skip hook (direct mode is local — no testnet to skip). Kept: the
+`requires_mocks` / `slow` marker registrations (compat), and all the
+DexScreener / evidence / LLM payload + response builder functions as
+plain module-level helpers. Also dropped a duplicate
+`pytest_addoption` block that was fighting with gltest's own
+`--network` registration.
+
+Per-file rewrite:
+
+- **`test_02_price_no_llm_v3.py`** (5 tests) — happy path, transient
+  503, empty-pairs external, parametrized 4xx `[400, 404]`. Removed
+  the now-unused `_leader_error_payload` helper; failure detection
+  goes through `direct_vm.expect_revert("[EXTERNAL]" / "[TRANSIENT]")`
+  which substring-matches the contract's UserError prefix directly.
+- **`test_03_price_llm_field_only_v3.py`** (7 tests) — happy path, the
+  three `LLM_ERROR` variants (garbage, float leak, string-float regex
+  leak), parametrized 4xx `[400, 404]`, transient 503. Same
+  `expect_revert` pattern for `[LLM_ERROR]` / `[EXTERNAL]` /
+  `[TRANSIENT]`.
+- **`test_04_worldcup_enum_v3.py`** (8 tests) — `TEAM_A_WIN`,
+  `TEAM_B_WIN`, `DRAW` (structured score regex), `UNKNOWN` (LLM
+  `confident=False`, contract succeeds), transient 503, parametrized
+  4xx `[400, 404]` external, `LLM_ERROR` fallback. Deploy passes
+  `list(EVIDENCE_URLS)` since the constructor joins to CSV internally.
+
+Dropped every `@pytest.mark.requires_mocks` decorator — direct mode
+never touches testnet, so the auto-skip-on-testnet logic is dead. The
+marker stays registered for anything else that might use it.
+
+**Verification:**
+
+- `python -m py_compile` PASS on all four files.
+- `gltest --collect-only tests/integration/` collects exactly **20
+  items** (5 + 7 + 8), matching the v3 design count exactly.
+- No parallel `tests/direct/` suite needed — these integration tests
+  **are** the direct-mode tests. That's the correct architecture for
+  nondet contracts with mocks: the `direct_vm` fixture is the only
+  surface where `mock_web` / `mock_llm` actually work.
+
+Status now: import collection clean against the real `gltest` build,
+suite ready to execute on Marcos's localnet for the first time.

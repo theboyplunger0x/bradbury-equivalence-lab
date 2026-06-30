@@ -1,25 +1,23 @@
-# Integration tests for 02_price_no_llm_v3.py
+# Direct-mode tests for 02_price_no_llm_v3.py.
 #
 # Run from experiments/bradbury/:
-#   gltest tests/integration/test_02_price_no_llm_v3.py -v -s --network localnet
+#   gltest tests/integration/test_02_price_no_llm_v3.py -v -s
 #
-# Covers:
-#   - happy path: BTC base price returns a sensible value (consensus succeeds,
-#     storage matches what the leader fetched within TOLERANCE_BPS)
-#   - transient: DexScreener returns 503 → contract surfaces ERROR_TRANSIENT
+# Why direct mode: gltest's mock_web cheatcode ONLY exists on the
+# `direct_vm` VMContext from gltest.direct.pytest_plugin. The previous
+# `vm_context` fixture was fictional — see the rewritten conftest.
 #
-# Mock cheatcodes (mock_web) are only available on localnet (GLSim / Studio).
-# When this suite runs against testnet_bradbury, the `requires_mocks` marker
-# in conftest auto-skips these cases.
+# Covers (preserved intent from the previous integration suite):
+#   - happy path: BTC base price returns a sensible value
+#   - transient: DexScreener 503 → [TRANSIENT], no state change
+#   - external 200 + empty pairs[] → [EXTERNAL], no state change
+#   - external 4xx (400, 404) → [EXTERNAL], no state change
 
 from __future__ import annotations
 
 import json
 
 import pytest
-
-from gltest import get_contract_factory
-from gltest.assertions import tx_execution_succeeded
 
 from conftest import dexscreener_payload_btc_base
 
@@ -31,55 +29,26 @@ DEXSCREENER_REGEX = r".*api\.dexscreener\.com/.*"
 PRICE_SCALE = 1_000_000_000
 
 
-def _leader_error_payload(tx_receipt) -> str:
-    """Best-effort extraction of the leader receipt's error payload string.
-
-    Mirrors the helper in test_03 — see that file for the rationale. Returns
-    "" if the structure is missing so callers can skip the assertion cleanly
-    rather than fake a pass.
-    """
-    try:
-        receipts = tx_receipt["consensus_data"]["leader_receipt"]
-        if not receipts:
-            return ""
-        result = receipts[0].get("result") or {}
-        if isinstance(result, dict):
-            payload = result.get("payload")
-            if isinstance(payload, str):
-                return payload
-        return str(result)
-    except (KeyError, TypeError, IndexError):
-        return ""
+def _deploy_btc_base(direct_deploy):
+    """Deploy a fresh BTC/base price contract via direct mode."""
+    return direct_deploy(CONTRACT_FILENAME, "BTC", "base")
 
 
-def _deploy_btc_base(factory):
-    """Deploy a fresh BTC/base price contract."""
-    return factory.deploy(args=["BTC", "base"])
-
-
-@pytest.mark.requires_mocks
-def test_happy_path_btc_base_returns_sensible_value(vm_context):
-    """Leader + validators agree on a BTC/base price within tolerance."""
-    factory = get_contract_factory("PriceNoLlm", source_file=CONTRACT_FILENAME)
-
-    # Stable mocked payload — every replica sees the same priceUsd.
+def test_happy_path_btc_base_returns_sensible_value(direct_vm, direct_deploy):
+    """Mocked DexScreener payload → contract resolves with sensible BTC price."""
     payload = dexscreener_payload_btc_base(
         price_usd="65000.123456789",
         liquidity_usd="12345678.9",
     )
-    vm_context.mock_web(
+    direct_vm.mock_web(
         DEXSCREENER_REGEX,
         {"status": 200, "body": payload},
     )
 
-    contract = _deploy_btc_base(factory)
+    contract = _deploy_btc_base(direct_deploy)
+    contract.resolve()
 
-    tx_receipt = contract.resolve(args=[]).transact()
-    assert tx_execution_succeeded(tx_receipt), (
-        "happy path: consensus must succeed when all replicas see the same DEX payload"
-    )
-
-    state = contract.get_price(args=[]).call()
+    state = contract.get_price()
     assert state["resolved"] is True
     assert state["symbol"] == "BTC"
     assert state["chain"] == "base"
@@ -91,99 +60,57 @@ def test_happy_path_btc_base_returns_sensible_value(vm_context):
         f"BTC price out of realistic band: micro={micro}"
     )
 
-    # And the formatted decimal must match prefix of the priceUsd input we mocked.
-    # (Contract trims trailing zeros — only check leading characters.)
+    # Formatted decimal must reflect the input we mocked.
     assert state["price_usd"].startswith("65000"), state["price_usd"]
 
 
-@pytest.mark.requires_mocks
-def test_transient_503_surfaces_transient_error(vm_context):
-    """DexScreener returns 503 → contract throws [TRANSIENT] and stays unresolved.
-
-    The SKILL.md canonical error scheme requires every replica to independently
-    hit a TRANSIENT error so the canonical _handle_leader_error can agree
-    'both sides transient'. Mocking the same 503 for every replica satisfies
-    that.
-    """
-    factory = get_contract_factory("PriceNoLlm", source_file=CONTRACT_FILENAME)
-
-    vm_context.mock_web(
+def test_transient_503_surfaces_transient_error(direct_vm, direct_deploy):
+    """DexScreener returns 503 → contract raises [TRANSIENT]; state unchanged."""
+    direct_vm.mock_web(
         DEXSCREENER_REGEX,
         {"status": 503, "body": "Service Unavailable"},
     )
 
-    contract = _deploy_btc_base(factory)
+    contract = _deploy_btc_base(direct_deploy)
 
-    tx_receipt = contract.resolve(args=[]).transact()
+    with direct_vm.expect_revert("[TRANSIENT]"):
+        contract.resolve()
 
-    # The transient failure should NOT be a successful contract execution —
-    # consensus may finalize the tx, but execution must report failure.
-    assert not tx_execution_succeeded(tx_receipt), (
-        "transient: resolve() must fail when DexScreener returns 503"
-    )
-
-    state = contract.get_price(args=[]).call()
+    state = contract.get_price()
     assert state["resolved"] is False, "no state should change on transient failure"
     assert state["price_micro_usd"] == "0"
 
 
-@pytest.mark.requires_mocks
-def test_external_no_pairs_surfaces_external_error(vm_context):
-    """DexScreener returns 200 with an empty pairs[] → [EXTERNAL] error.
-
-    EXTERNAL is the deterministic class — validators independently see the
-    same empty payload, so the canonical helper agrees byte-equal on the
-    error message.
-    """
-    factory = get_contract_factory("PriceNoLlm", source_file=CONTRACT_FILENAME)
-
-    vm_context.mock_web(
+def test_external_no_pairs_surfaces_external_error(direct_vm, direct_deploy):
+    """DexScreener returns 200 with an empty pairs[] → [EXTERNAL]; state unchanged."""
+    direct_vm.mock_web(
         DEXSCREENER_REGEX,
         {"status": 200, "body": json.dumps({"pairs": []})},
     )
 
-    contract = _deploy_btc_base(factory)
+    contract = _deploy_btc_base(direct_deploy)
 
-    tx_receipt = contract.resolve(args=[]).transact()
-    assert not tx_execution_succeeded(tx_receipt)
+    with direct_vm.expect_revert("[EXTERNAL]"):
+        contract.resolve()
 
-    state = contract.get_price(args=[]).call()
+    state = contract.get_price()
     assert state["resolved"] is False
+    assert state["price_micro_usd"] == "0"
 
 
-@pytest.mark.requires_mocks
 @pytest.mark.parametrize("status_code", [400, 404])
-def test_external_4xx_surfaces_external_error(vm_context, status_code):
-    """DexScreener returns 4xx → contract throws [EXTERNAL] and stays unresolved.
-
-    Per SKILL.md, 4xx is the deterministic external class: validators
-    independently see the same 4xx and the canonical _handle_leader_error
-    agrees byte-equal on the prefixed error message. No state change.
-    """
-    factory = get_contract_factory("PriceNoLlm", source_file=CONTRACT_FILENAME)
-
-    vm_context.mock_web(
+def test_external_4xx_surfaces_external_error(direct_vm, direct_deploy, status_code):
+    """DexScreener returns 4xx → contract raises [EXTERNAL]; state unchanged."""
+    direct_vm.mock_web(
         DEXSCREENER_REGEX,
         {"status": status_code, "body": "Not Found"},
     )
 
-    contract = _deploy_btc_base(factory)
+    contract = _deploy_btc_base(direct_deploy)
 
-    tx_receipt = contract.resolve(args=[]).transact()
-    assert not tx_execution_succeeded(tx_receipt), (
-        f"external: resolve() must fail when DexScreener returns {status_code}"
-    )
+    with direct_vm.expect_revert("[EXTERNAL]"):
+        contract.resolve()
 
-    state = contract.get_price(args=[]).call()
+    state = contract.get_price()
     assert state["resolved"] is False, "no state should change on external 4xx failure"
     assert state["price_micro_usd"] == "0"
-
-    # Tighten: per SKILL.md canonical scheme the error class must surface as
-    # "[EXTERNAL]" so deterministic validators byte-match. Skip cleanly if the
-    # harness build does not expose the leader payload — better than faking.
-    err = _leader_error_payload(tx_receipt)
-    if err:
-        assert "[EXTERNAL]" in err, (
-            f"expected [EXTERNAL] prefix in leader payload for {status_code}, "
-            f"got: {err!r}"
-        )
