@@ -161,3 +161,71 @@ def llm_response_outcome(outcome: str, score: str = "", confident: bool = True) 
 
 def llm_response_unknown() -> str:
     return json.dumps({"outcome": "UNKNOWN", "score": "", "confident": False})
+
+
+# --- ESPN scoreboard / summary payload builders -----------------------------
+# Used by 04_worldcup_enum_v4 integration tests. Mirrors the real ESPN shape:
+#   data["header"]["competitions"][0] = {
+#       "status": {"type": {"state": "post"|"in"|"pre", "completed": bool}},
+#       "competitors": [
+#           {"homeAway": "home", "team": {"displayName": "Argentina"}, "score": "2"},
+#           {"homeAway": "away", "team": {"displayName": "Brazil"},    "score": "1"},
+#       ],
+#   }
+# Both leader and validator parse the SAME path and derive the SAME enum.
+
+def espn_summary_payload(
+    home_name: str = "Argentina",
+    away_name: str = "Brazil",
+    home_score: int = 2,
+    away_score: int = 1,
+    state: str = "post",
+    completed: bool = True,
+) -> str:
+    """ESPN /summary?event=… shape — completed match by default."""
+    return json.dumps({
+        "header": {
+            "competitions": [
+                {
+                    "status": {
+                        "type": {
+                            "state": state,
+                            "completed": completed,
+                        }
+                    },
+                    "competitors": [
+                        {
+                            "homeAway": "home",
+                            "team": {"displayName": home_name},
+                            "score": str(home_score),
+                        },
+                        {
+                            "homeAway": "away",
+                            "team": {"displayName": away_name},
+                            "score": str(away_score),
+                        },
+                    ],
+                }
+            ]
+        }
+    })
+
+
+def espn_summary_not_final(
+    home_name: str = "Argentina",
+    away_name: str = "Brazil",
+) -> str:
+    """ESPN summary where the match is in-progress (state=in, completed=false).
+
+    Drives the contract into the EXPECTED 'match not yet final' branch, which
+    in v4 lands as outcome=UNKNOWN at the validator level (revert path), so
+    the test asserts on the [EXPECTED] revert message instead of a state read.
+    """
+    return espn_summary_payload(
+        home_name=home_name,
+        away_name=away_name,
+        home_score=0,
+        away_score=0,
+        state="in",
+        completed=False,
+    )
