@@ -18,14 +18,80 @@
 #      integer fixed-point storage, advisory fields outside consensus.
 
 from genlayer import *
-from _genlayer_helpers import (
-    ERROR_EXPECTED,
-    ERROR_EXTERNAL,
-    ERROR_TRANSIENT,
-    _handle_leader_error,
-    _within_int,
-)
 import json
+
+
+# --- Inlined GenLayer helpers (canonical anti-pattern fixes from SKILL.md) ----
+# Inlined because GenLayer contracts run in a per-validator sandbox that does
+# NOT have access to sibling local modules at validator load time. A
+# importing from a sibling helpers module raises ImportError on every validator and
+# the deploy comes back FINISHED_WITH_ERROR. Keep this block in lock-step with
+# the source-of-truth helpers file (experiments/bradbury directory).
+
+# Canonical error prefix scheme (per SKILL.md errorPrefixScheme). Each prefix
+# tags a different deterministic / non-deterministic class so validators know
+# how to compare their own error against the leader's.
+ERROR_EXPECTED = "[EXPECTED]"   # Business-logic error from the contract itself (deterministic).
+ERROR_EXTERNAL = "[EXTERNAL]"   # External API returned a deterministic 4xx (deterministic).
+ERROR_TRANSIENT = "[TRANSIENT]" # Network failure or external 5xx (non-deterministic).
+ERROR_LLM_ERROR = "[LLM_ERROR]" # LLM misbehavior / unparseable LLM output (non-deterministic).
+
+
+def _handle_leader_error(leaders_res, leader_fn) -> bool:
+    """Canonical leader-error reconciliation per SKILL.md.
+
+    Called by validator_fn when the leader did NOT return successfully
+    (i.e. leaders_res is not gl.vm.Return). The validator independently
+    runs `leader_fn()` and decides whether to AGREE or DISAGREE with the
+    leader's error based on the prefix class:
+
+      - EXPECTED  / EXTERNAL  (deterministic): agree only on BYTE-EQUAL message.
+      - TRANSIENT (non-deterministic):         agree if BOTH hit any TRANSIENT.
+      - LLM_ERROR / unknown:                   ALWAYS disagree — forces leader
+                                               rotation and a consensus retry.
+
+    Returns True to AGREE with the leader's failure, False to DISAGREE.
+    """
+    leader_msg = getattr(leaders_res, "message", "") or ""
+    try:
+        leader_fn()
+        # Validator ran successfully but the leader failed → disagree, the
+        # leader is the outlier.
+        return False
+    except gl.vm.UserError as e:
+        validator_msg = getattr(e, "message", None)
+        if validator_msg is None:
+            validator_msg = str(e)
+        # Deterministic classes: byte-exact match required.
+        if validator_msg.startswith(ERROR_EXPECTED) or validator_msg.startswith(ERROR_EXTERNAL):
+            return validator_msg == leader_msg
+        # Transient: agree if both sides independently saw a transient failure.
+        if validator_msg.startswith(ERROR_TRANSIENT) and leader_msg.startswith(ERROR_TRANSIENT):
+            return True
+        # LLM_ERROR or anything unrecognized: disagree to force retry.
+        return False
+    except Exception:
+        # A non-UserError (raw runtime exception) is never a clean class —
+        # disagree so consensus retries with a different leader.
+        return False
+
+
+def _within_int(a: int, b: int, tol_bps: int) -> bool:
+    """Basis-points tolerance compare for integer fixed-point prices.
+
+    Uses INTEGER arithmetic only — no bare float — so the lint AST
+    'Non-deterministic patterns (bare float usage)' anti-pattern check
+    passes cleanly.
+
+    tol_bps is in basis points (1 bp = 0.01%). e.g. tol_bps=50 == 0.5%.
+    """
+    if a <= 0 or b <= 0:
+        return False
+    diff = a - b if a >= b else b - a
+    # Compare diff * 20_000 against (a + b) * tol_bps — equivalent to
+    #   diff / ((a + b) / 2) <= tol_bps / 10_000
+    # but using only integers.
+    return diff * 20_000 <= (a + b) * tol_bps
 
 
 # 50 bps == 0.5%. Wider than v2's 0.1% to absorb intra-block DEX movement

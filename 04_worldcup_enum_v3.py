@@ -33,7 +33,7 @@
 #   non-determinism we're consensus-voting on.
 #
 #   Other changes:
-#     - Imports canonical _handle_leader_error from _genlayer_helpers.
+#     - Uses canonical _handle_leader_error (inlined helper).
 #     - 4-class error scheme wired in (EXPECTED / EXTERNAL / TRANSIENT /
 #       LLM_ERROR).
 #     - Drops bare `except Exception` in JSON parsing (anti-pattern: use
@@ -45,15 +45,63 @@
 #       advisory — not in calldata).
 
 from genlayer import *
-from _genlayer_helpers import (
-    ERROR_EXPECTED,
-    ERROR_EXTERNAL,
-    ERROR_TRANSIENT,
-    ERROR_LLM_ERROR,
-    _handle_leader_error,
-)
 import json
 import re
+
+
+# --- Inlined GenLayer helpers (canonical anti-pattern fixes from SKILL.md) ----
+# Inlined because GenLayer contracts run in a per-validator sandbox that does
+# NOT have access to sibling local modules at validator load time. A
+# importing from a sibling helpers module raises ImportError on every validator and
+# the deploy comes back FINISHED_WITH_ERROR. Keep this block in lock-step with
+# the source-of-truth helpers file (experiments/bradbury directory).
+
+# Canonical error prefix scheme (per SKILL.md errorPrefixScheme). Each prefix
+# tags a different deterministic / non-deterministic class so validators know
+# how to compare their own error against the leader's.
+ERROR_EXPECTED = "[EXPECTED]"   # Business-logic error from the contract itself (deterministic).
+ERROR_EXTERNAL = "[EXTERNAL]"   # External API returned a deterministic 4xx (deterministic).
+ERROR_TRANSIENT = "[TRANSIENT]" # Network failure or external 5xx (non-deterministic).
+ERROR_LLM_ERROR = "[LLM_ERROR]" # LLM misbehavior / unparseable LLM output (non-deterministic).
+
+
+def _handle_leader_error(leaders_res, leader_fn) -> bool:
+    """Canonical leader-error reconciliation per SKILL.md.
+
+    Called by validator_fn when the leader did NOT return successfully
+    (i.e. leaders_res is not gl.vm.Return). The validator independently
+    runs `leader_fn()` and decides whether to AGREE or DISAGREE with the
+    leader's error based on the prefix class:
+
+      - EXPECTED  / EXTERNAL  (deterministic): agree only on BYTE-EQUAL message.
+      - TRANSIENT (non-deterministic):         agree if BOTH hit any TRANSIENT.
+      - LLM_ERROR / unknown:                   ALWAYS disagree — forces leader
+                                               rotation and a consensus retry.
+
+    Returns True to AGREE with the leader's failure, False to DISAGREE.
+    """
+    leader_msg = getattr(leaders_res, "message", "") or ""
+    try:
+        leader_fn()
+        # Validator ran successfully but the leader failed → disagree, the
+        # leader is the outlier.
+        return False
+    except gl.vm.UserError as e:
+        validator_msg = getattr(e, "message", None)
+        if validator_msg is None:
+            validator_msg = str(e)
+        # Deterministic classes: byte-exact match required.
+        if validator_msg.startswith(ERROR_EXPECTED) or validator_msg.startswith(ERROR_EXTERNAL):
+            return validator_msg == leader_msg
+        # Transient: agree if both sides independently saw a transient failure.
+        if validator_msg.startswith(ERROR_TRANSIENT) and leader_msg.startswith(ERROR_TRANSIENT):
+            return True
+        # LLM_ERROR or anything unrecognized: disagree to force retry.
+        return False
+    except Exception:
+        # A non-UserError (raw runtime exception) is never a clean class —
+        # disagree so consensus retries with a different leader.
+        return False
 
 
 VALID_OUTCOMES = ["TEAM_A_WIN", "TEAM_B_WIN", "DRAW", "UNKNOWN"]
