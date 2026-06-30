@@ -1031,3 +1031,40 @@ marker stays registered for anything else that might use it.
 
 Status now: import collection clean against the real `gltest` build,
 suite ready to execute on Marcos's localnet for the first time.
+
+### Phase 4e — local test run + 04_v3 TRANSIENT propagation fix
+
+First full run of the v3 suite in direct mode (local, no docker) came
+back **19/20**. One failure surfaced in
+`test_04_worldcup_enum_v3.py`: the all-5xx aggregation case was being
+raised as `[EXTERNAL]` instead of `[TRANSIENT]`.
+
+Root cause in `04_worldcup_enum_v3.py` `_fetch_all_evidence`: the
+previous aggregation only raised `[TRANSIENT]` when
+`transient_count > 0 AND external_count == 0`; any mixed 5xx + 4xx
+batch silently fell through to the `[EXTERNAL]` "no readable
+evidence" branch. That violates the contract spelled out in
+`SKILL.md _handle_leader_error`: a 5xx might recover on retry, so it
+must propagate as TRANSIENT even when other sources hard-fail with
+4xx, otherwise validators can't agree via the both-sides-transient
+rule.
+
+**Fix:** rewrote the aggregation at lines 136–181. New rule:
+
+- If ANY source returned 5xx **and** zero sources produced usable
+  evidence → raise `[TRANSIENT]`.
+- Only when every failing source returned a deterministic 4xx (and
+  none returned usable evidence) → raise `[EXTERNAL]` (byte-equal
+  agreement guaranteed).
+- 200-but-unparseable still falls to `[EXTERNAL]` via the snippet
+  gate, unchanged.
+
+Verified against all four invariants by Codex reading the
+implementation directly (CORRECT verdict). `python -m py_compile`
+PASS on all three v3 files. No equivalent aggregation bug exists in
+`02_price_no_llm_v3.py` or `03_price_llm_field_only_v3.py` — each
+fetches a single URL and propagates the prefix straight out of
+`_http_get_text`, so no change needed there.
+
+**Final:** `gltest tests/integration/` → **20/20 PASSED** in direct
+mode (local, no docker), 0.22s.

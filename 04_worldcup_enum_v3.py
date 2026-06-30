@@ -136,10 +136,18 @@ def _split_urls_csv(evidence_urls_csv: str):
 def _fetch_all_evidence(urls):
     """Fetch each evidence URL; tolerate single-source failures.
 
-    Returns (snippets_list, used_sources_list). Raises ERROR_TRANSIENT only
-    if EVERY url failed transiently (so leader + validator can agree via
-    canonical TRANSIENT-both-sides rule). Raises ERROR_EXTERNAL if every
-    url returned a deterministic 4xx (so both sides agree byte-equal).
+    Returns (snippets_list, used_sources_list).
+
+    Error-class semantics (per SKILL.md _handle_leader_error spec):
+      - If ANY source returned a 5xx (TRANSIENT) and NO source returned
+        usable evidence → raise ERROR_TRANSIENT. Covers BOTH the all-5xx
+        case AND the mixed 5xx+4xx case: a 5xx might recover on retry, so
+        we surface TRANSIENT so the validator can independently agree via
+        the canonical TRANSIENT-both-sides rule rather than demanding a
+        byte-equal external message.
+      - Only when every failing source returned a deterministic 4xx
+        (EXTERNAL) — and no 5xx in the mix — do we raise ERROR_EXTERNAL so
+        leader+validator agree byte-equal on the deterministic condition.
     """
     snippets = []
     used = []
@@ -153,15 +161,25 @@ def _fetch_all_evidence(urls):
                 snippets.append((url, snippet))
                 used.append(url)
         except gl.vm.UserError as e:
-            msg = str(e)
+            # gltest direct-mode stringifies UserError as
+            # "UserError(message='[TRANSIENT] ...')"; the canonical prefix
+            # lives on .message. Use it so all-5xx source failures stay
+            # TRANSIENT instead of falling through to EXTERNAL.
+            msg = getattr(e, "message", None)
+            if msg is None:
+                msg = str(e)
             if msg.startswith(ERROR_TRANSIENT):
                 transient_count += 1
             elif msg.startswith(ERROR_EXTERNAL):
                 external_count += 1
     if snippets:
         return snippets, used
-    if transient_count > 0 and external_count == 0:
-        raise gl.vm.UserError(f"{ERROR_TRANSIENT} all evidence sources transient")
+    # Any TRANSIENT in the mix (all-5xx OR mixed 5xx+4xx) → TRANSIENT.
+    # The 5xx component might recover; TRANSIENT lets validators agree via
+    # the both-sides-transient rule rather than demanding byte-equal msgs.
+    if transient_count > 0:
+        raise gl.vm.UserError(f"{ERROR_TRANSIENT} all evidence sources unreachable")
+    # All failures were deterministic 4xx (or 200 with empty body) → EXTERNAL.
     raise gl.vm.UserError(f"{ERROR_EXTERNAL} no readable evidence")
 
 
