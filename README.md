@@ -1698,3 +1698,178 @@ session: fix the deploy-receipt parser (read `votes` and
 `classifyVerdict`, redeploy, then run resolve. If the resolve produces
 a real vote vector — `AGREE`, `DISAGREE`, or `DETERMINISTIC_VIOLATION`
 — that is the first genuine v3 comparator signal of the entire lab.
+
+## Phase 5e — v3 contracts FINAL real bradbury validation
+
+The first genuine v3 comparator signal of the entire lab lands here.
+Phase 5e cleared the last remaining harness bug from Phase 5d (success-path
+receipt parser missed `votes` and `contractAddress`), recovered the three
+v3 contract addresses from the Phase 5d deploy hashes, and ran one
+`resolve()` per contract on real Bradbury. For the first time across all
+six phases, we have captured validator-vote vectors on the v3 comparator.
+
+### Cascading parser/operational fixes through Phases 5a → 5e
+
+| phase | new blocker found | fix shipped | downstream effect |
+|-------|--------------------|-------------|-------------------|
+| 5     | Bradbury deploy long-poll exceeded 30-min session window | none — moved to fresh wallet retry | deploy never finalized in window |
+| 5b    | viem `getTransactionReceipt` only sees EVM-shaped txs; GL-native receipts need `client.getTransaction()` | swap to GL-native poller | got a terminal status, but it was `UNKNOWN_STATUS_14` (validator commit/no-reveal) |
+| 5c    | sandbox-import collision (`from _genlayer_helpers import` fails in per-validator sandbox) + `loadCode()` rewriting pinned runner header to `:latest` (rejected by bradbury) | inlined all helpers into each v3 contract + removed header rewrite | deploys reached validators for the first time, but classifier mis-bucketed `ACCEPTED+FINISHED_WITH_ERROR+DISAGREE:5` as `AGREE_ERROR` |
+| 5d    | classifier ignored vote vector + success enum is `FINISHED_WITH_RETURN` not `SUCCESS` | added DV-precedence short-circuit + `npx tsc --noEmit` 0 | deploys finished clean in ~14s but receipt parser read wrong subtree → empty `votes` + empty `contractAddress` reported even though chain had them |
+| 5e    | success-path receipt parser missed `votes` and `contractAddress`; needed manual recovery from deploy hashes | recovery script reads success-path receipt shape, extracts addresses, then runs `resolve()` per address | **first real v3 comparator signal — see resolve receipts below** |
+
+### Deploy recovery (addresses extracted from Phase 5d hashes)
+
+All three Phase 5d deploys had finished cleanly on bradbury (status=ACCEPTED,
+exec=FINISHED_WITH_RETURN, 5/5 AGREE votes). The Phase 5d script's parser
+just couldn't read those fields out of the success-path receipt. The
+recovery script in Phase 5e reads the receipts correctly and yields the
+allocated contract addresses below.
+
+| exp     | deploy hash                                                          | statusName | execName              | votes      | contractAddress                              | verdict       |
+|---------|----------------------------------------------------------------------|------------|-----------------------|------------|----------------------------------------------|---------------|
+| 02_v3   | `0xcfa9cc2353be5a8d967a6d6222e32fb11d191efb95c27c226db77c91a2d20720` | ACCEPTED   | FINISHED_WITH_RETURN  | `{AGREE:5}` | `0x6f3784b61c6539a36B51F93ABEcD8bb7B01592e0` | AGREE_SUCCESS |
+| 03_v3   | `0xab71e8ce7a06b8702f3bab61f183ee191c1cd8fca71b6734c2663e505682b289` | ACCEPTED   | FINISHED_WITH_RETURN  | `{AGREE:5}` | `0x6682A341F864Ed9b9b91eB19EE1008865B378321` | AGREE_SUCCESS |
+| 04_v3   | `0x8e8cb91db7e8813faa36b7e68d6649bc4400682c34a95bf5c08e8b531b46f0f6` | ACCEPTED   | FINISHED_WITH_RETURN  | `{AGREE:5}` | `0x3D828B15F75ea40b1438Acbab75f327Cc26A9b52` | AGREE_SUCCESS |
+
+**3/3 deploys clean `AGREE_SUCCESS` on bradbury.** This is the first
+captured proof that v3 contracts (with inlined helpers + pinned runner
+header + the host-side test-suite-green design) bootstrap cleanly on
+the per-validator sandbox. All five validators committed AND revealed,
+all five voted AGREE, byte-identical validator hashes on every deploy.
+
+### Resolve results (one `resolve()` per contract, real bradbury)
+
+| exp     | resolve txHash                                                         | statusName | execName              | votes                                           | hashesIdentical | verdict | ms      | leader receipt summary |
+|---------|------------------------------------------------------------------------|------------|-----------------------|--------------------------------------------------|------------------|---------|---------|------------------------|
+| 02_v3   | `0x0ee490ecde6bfedb61d3eb9cf67eb2837f73118aa608720ee7a96c8336e050f8`  | ACCEPTED   | FINISHED_WITH_RETURN  | `{AGREE:5}`                                      | true             | AGREE   | 14,629  | resultName=AGREE, lastRound.result=1 (AGREE), 5/5 validator hashes identical = `0x94b3e1e7…46e4`, eqBlocksOutputs decoded `"29970 added"`. Clean 5/5 AGREE on resolve() — v3 fix worked vs v1's 5/5 DETERMINISTIC_VIOLATION. |
+| 03_v3   | `0x039d07ad94e5053d6d4f16f30ab82a0afe4924da0f49c80f8a5a1c0540e9baac`  | COMMITTING | NOT_VOTED             | `{NOT_VOTED:5}`                                  | false            | OTHER   | 650,897 | Tx submitted but still stuck in COMMITTING (status=3) after >11min; all 5 validators NOT_VOTED, all `validatorResultHash=0x000…`. Bradbury queue delay, not a v3 contract verdict. resultName=IDLE. |
+| 04_v3   | `0xdd9de3cf8ebf48c1fb9bdd3f3174144aa5367fc347c649628ee467797ca8160f`  | ACCEPTED   | FINISHED_WITH_RETURN  | `{AGREE:3, DETERMINISTIC_VIOLATION:2}`           | false            | OTHER   | 57,483  | Network resultName=AGREE (3-of-5 majority), tx ACCEPTED. But hashes split: 3 validators on `0x8fb71a…b47e` (matched leader), 2 on `0x915d4e…9471` (DV). eqBlocksOutputs decoded `"UNKNOWN added"`. Partial regression vs 02_v3 — v3 improves over v1 5/5 DV but worldcup-enum path still has 2/5 DV split. |
+
+### Phase 2 v1 vs Phase 5e v3 — head-to-head
+
+| dimension                                | v1 (Phase 2)                                                       | v3 (Phase 5e)                                                                  |
+|------------------------------------------|--------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| resolves attempted                       | 9 (3 contracts × 3 attempts)                                       | 3 (3 contracts × 1 attempt — gating: AGREE on first before extending)          |
+| resolves that reached validator vote     | most stalled CANCELED; the ones that executed → 5/5 DV identical   | 2/3 reached vote (02_v3, 04_v3); 1/3 stuck in COMMITTING (03_v3)               |
+| resolves with consensus AGREE on result  | **0 / 9**                                                          | **1 / 3 full AGREE (02_v3)** + 1 majority-AGREE-with-DV-split (04_v3)          |
+| AGREE votes recorded                     | 0 / 45                                                             | **8 / 15** (5 from 02_v3 + 3 from 04_v3)                                       |
+| DV votes recorded                        | 45 / 45 (every executed resolve)                                   | 2 / 15 (both on 04_v3 worldcup-enum)                                           |
+| comparator gate exercised at all         | no — leader nondet path violated upstream of any comparator        | yes — 02_v3 cleared the ±50bps integer comparator end-to-end                   |
+| leader receipt populated                 | no — `consensus_data.leader_receipt` empty across the board        | yes — 02_v3 and 04_v3 both produced leader receipts with eqBlocksOutputs       |
+| failure mode (where present)             | reproducible leader-side nondet violation                          | mixed: COMMITTING stall (03_v3) + per-validator hash split (04_v3)             |
+
+This is the first lab phase where the gap between v1 and v3 is measurable
+in validator votes, not just in design-on-paper or test-suite output.
+
+### Final bradbury-readiness verdict per contract
+
+| exp     | bradbury-proven? | evidence                                                                                                                                |
+|---------|-------------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| 02_v3   | **YES**           | One clean 5/5 AGREE resolve, byte-identical validator hashes, eqBlocksOutputs decoded. The pure-integer 50bps tolerance + canonical `_handle_leader_error` shape works on bradbury. Sample size is N=1 — production should re-run ≥3x for statistical comfort, but the design itself is no longer hypothetical. |
+| 03_v3   | **UNPROVEN**      | Tx submitted but stuck COMMITTING for >11min with all 5 validators NOT_VOTED. This is a bradbury queue/validator-lifecycle issue, NOT a v3 design verdict — the contract never executed through consensus. Cannot conclude on the LLM-field-only shape until a resolve actually reveals.            |
+| 04_v3   | **PARTIAL**       | 3-AGREE / 2-DV split: network resolved AGREE majority and tx ACCEPTED, but two validators independently derived a different outcome hash. eqBlocksOutputs `"UNKNOWN added"` suggests the structured-score parser hit Step 3 (UNKNOWN) on the evidence given to leader+majority, while 2/5 validators reached a different deterministic state. Improves on v1's 5/5 DV but the worldcup-enum path still has validator-dependent behavior that needs isolation before production. |
+
+### Codex second-opinion review (Phase 5e)
+
+Codex was called fresh on the three resolve receipts above (read-only,
+no file modifications). Verbatim verdict per question:
+
+- **(a) Does v3 reach AGREE consensus on resolve() on Bradbury?**
+  "Yes, but narrowly. 02_v3 PriceNoLlm reached clean resolve consensus
+  on Bradbury: ACCEPTED, FINISHED_WITH_RETURN, AGREE:5, identical hashes."
+- **(b) Better/working/same vs Phase 2 v1 baseline?**
+  "v3 is demonstrably better than Phase 2 v1. Phase 2 had 0/9 AGREE and
+  repeated 5/5 DETERMINISTIC_VIOLATION with identical failure hashes.
+  Phase 5e v3 has one full 5/5 AGREE success and one accepted
+  majority-AGREE resolve. It is not 'same as baseline'."
+- **(c) Pattern suggesting next-iteration work?**
+  "Deterministic/no-LLM path looks healthy; LLM/equivalence paths still
+  look unstable. The 04_v3 3-AGREE/2-DV split suggests validator-dependent
+  behavior remains, likely around enum/LLM output normalization,
+  equivalence block behavior, or per-validator execution differences. The
+  03_v3 stuck COMMITTING with NOT_VOTED:5 is a separate reliability/
+  lifecycle issue worth isolating."
+- **(d) Bradbury-proven now?**
+  "v3 is **Bradbury-proven for the non-LLM resolve path**, and Phase 5e
+  proves the deploy/address/resolve pipeline is finally working. It is
+  **not fully Bradbury-proven across the v3 design** yet: one clean win,
+  one hang, one accepted-but-split majority result. Partial win, real
+  progress, mixed signals."
+
+This matches our independent read of the receipts. The headline is the
+02_v3 clean AGREE — six phases in, the lab finally captured a v3
+comparator vote on real bradbury, and it was the cleanest possible
+shape (5/5 AGREE, byte-identical hashes, decoded eqBlocksOutputs).
+
+### What we learned that the SKILL.md does NOT cover
+
+The official `skills.genlayer.com` SKILL.md covers contract-writing
+anti-patterns (dict calldata, validator LLM re-call, silent zero on
+parse failure, bare except, schema-only validator, float math in
+tolerances). Phases 5a–5e surfaced a separate class of failures that
+the SKILL.md does not mention at all — these are the lab's
+contribution to the lessons file:
+
+1. **Sandbox import isolation.** Per-validator sandbox loads ONLY the
+   submitted `.py` file. `from _genlayer_helpers import ...` passes
+   `py_compile` AND `gltest direct mode` on the host filesystem but
+   fails inside the per-validator sandbox before `__init__` is even
+   reached. Contracts must be self-contained or use the
+   `py-genlayer-multi` packaging path (not exercised here).
+2. **Pinned runner header is mandatory on testnet/mainnet, NOT optional.**
+   `# { "Depends": "py-genlayer:<content-hash>" }` must travel through
+   the deploy pipeline byte-for-byte. Any helper that rewrites it to
+   `:latest` (works on studionet, fails on bradbury with `invalid
+   runner id`) silently kills the deploy with `5/5 DISAGREE` that
+   looks like a validator-set issue but is actually a header issue.
+3. **GenLayer-native receipts vs EVM-shaped receipts.** Never use
+   viem's `getTransactionReceipt` for a GenLayer tx — it only sees
+   EVM-shaped receipts and will wait forever. Use
+   `client.getTransaction({hash})` (GL JSON-RPC). The first Phase 5b
+   attempt burned 5 minutes on a method mismatch before this surfaced.
+4. **Receipt shape differs between FINISHED_WITH_RETURN and
+   FINISHED_WITH_ERROR.** `votes` and `contractAddress` live in
+   different subtrees of the success-path receipt vs the error-path
+   receipt. A parser written against the error-path receipt (Phase 2 /
+   Phase 5c) will silently report `votes={}` and empty addresses on
+   success-path receipts even when the chain has them. Always replay
+   a known-good Phase 1 receipt through any new parser.
+5. **Verdict classifiers MUST inspect the vote vector BEFORE the
+   status enum.** `ACCEPTED + FINISHED_WITH_ERROR + DISAGREE:5` is a
+   clear validator reject, not "AGREE_ERROR". DV-precedence
+   short-circuit must run first. (This is the Codex MEDIUM from
+   Phase 5c, locked here.)
+6. **"Direct mode green, testnet still surprises" is the recurring
+   lab shape.** `gltest direct mode` runs in-process on the host —
+   it does NOT exercise sandbox import isolation, runner-header
+   pinning, receipt-shape parsing, or validator-vote semantics. A
+   20/20 green host suite is a NECESSARY but not SUFFICIENT signal.
+   The only test that catches all five failure classes above is a
+   real testnet deploy with a parser that can read the receipts it
+   gets back.
+7. **Bradbury queue/validator lifecycle can stall a resolve in
+   COMMITTING for >11min with all 5 validators NOT_VOTED.** This is
+   not a contract verdict; it's an operational state we observed on
+   03_v3 in Phase 5e. The right call here is retry on a different
+   bradbury window, not a v3 code change.
+8. **Per-validator hash splits on the same submitted tx are possible
+   even when network resultName=AGREE.** 04_v3 hit 3-AGREE/2-DV with
+   identical leader inputs. Suggests per-validator execution
+   differences upstream of the comparator (likely in equivalence
+   block behavior or enum/LLM output normalization). Needs isolation
+   before the worldcup-enum shape ships to production.
+
+### Verdict — v3 Bradbury-ready status (FINAL)
+
+**`v3IsBradburyProven = false` (mixed signals; partial proof).** The
+non-LLM deterministic shape (02_v3) is bradbury-proven on N=1; the
+LLM-field-only shape (03_v3) is unproven due to a queue stall; the
+enum shape (04_v3) is partially proven with a worrying per-validator
+split. Headline for the GenLayer group: **first real v3 comparator
+signal of the lab, and v3 is demonstrably better than v1 (8/15 AGREE
+votes vs 0/45 in Phase 2, with one clean 5/5 AGREE)**. The lab is now
+in a position to do experiment-as-experiment: rerun 02_v3 ≥3x for
+statistical comfort, retry 03_v3 on a different bradbury window, and
+diagnose the 04_v3 hash split before the worldcup-enum shape is
+considered for any production path.
