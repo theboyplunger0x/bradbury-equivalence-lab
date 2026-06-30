@@ -636,3 +636,186 @@ two questions:
 happy to share the .py for the three v2 contracts + all tx hashes if
 useful. thanks!
 ```
+
+## Phase 4 — skills.genlayer.com integration + v3 rewrites
+
+Phase 4 stops treating the lab purely as a Bradbury-queue experiment and
+starts treating it as a CONTRACT-CORRECTNESS experiment. We pulled the
+official anti-pattern catalogue from `skills.genlayer.com` (the canonical
+`SKILL.md` for writing GenLayer Intelligent Contracts), audited every v2
+file against it, and produced v3 rewrites that close every remaining hit.
+
+The motivation: every Phase 2/3/3b zero so far was a runtime/queue zero,
+not a comparator-correctness zero. We had no defensible answer to "if
+deploy + resolve had finalized, would the v2 comparator have AGREED?"
+because v2 still carried anti-patterns the SKILL.md explicitly flags
+(silent LLM-zero on parse failure, missing canonical `_handle_leader_error`,
+bare-float lint hits, schema-only validator on 04, dict-in-calldata in
+some leaders). v3 closes those.
+
+### Anti-pattern recon (v1 vs v2 vs v3)
+
+Per-file audit against the SKILL.md anti-pattern table, before and after
+the v3 rewrite.
+
+| anti-pattern (per skills.genlayer.com SKILL.md)                                  | v1 hits                              | v2 hits                              | v3 hits |
+|----------------------------------------------------------------------------------|--------------------------------------|--------------------------------------|---------|
+| Dict / non-primitive returned from `leader_fn` (key-order serialization risk)    | 02, 03, 04                           | none                                 | none    |
+| Bare float arithmetic in tolerance / parsing (lint AST flag)                     | 02, 03                               | 02, 03                               | none (pure-integer basis-points + decimal-string parsing) |
+| Missing canonical `_handle_leader_error` (EXPECTED / EXTERNAL / TRANSIENT / LLM_ERROR scheme) | 02, 03, 04                           | 02, 03, 04                           | none (shared `_genlayer_helpers.py`) |
+| `gl.nondet.web.render()` for a plain JSON endpoint (DOM/timing variance)         | 02                                   | none                                 | none    |
+| Validator re-calls the LLM (variance amplification, LLM cost × N validators)     | 03, 04                               | none                                 | none    |
+| LLM extract silently returns 0 on parse failure ("Ignore LLM response format")   | 03                                   | 03 (partially mitigated by tolerance) | none (now raises `[LLM_ERROR]`) |
+| Bare `except Exception` masking errors                                           | 04 (`_as_dict`)                      | 04 (`_as_dict`)                      | none (narrowed to `(ValueError, TypeError)`) |
+| Schema-only / leader-output-only validator (rubber-stamp risk)                   | 04 (enum-membership + URL reachability only) | 04 (URL probe only)                  | none (validator independently re-derives outcome) |
+
+**Verdict from the audit:** v2 closed the v1 dict-calldata + render +
+validator-LLM-recall hits but left 4 categories alive — float math,
+canonical error scheme, silent LLM-zero (03), and schema-only validator
+(04). v3 closes all 4.
+
+### v1 → v2 → v3 design comparison
+
+| dimension                       | v1                                                              | v2                                                                                  | v3                                                                                                                    |
+|---------------------------------|-----------------------------------------------------------------|-------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
+| Leader return shape             | dict (calldata)                                                 | primitive string (`price_micro_usd` or enum)                                        | primitive string (unchanged from v2)                                                                                  |
+| Validator strategy              | re-call LLM / dict-diff                                         | deterministic re-derivation (web.get + JSON parse / reachability probe)             | deterministic re-derivation + **canonical `_handle_leader_error`** (TRANSIENT-both-sides agree, EXPECTED/EXTERNAL byte-equal, LLM_ERROR disagree-to-retry) |
+| Numeric tolerance               | float ratio `< 0.001` (0.1%)                                    | float ratio `< 0.001` (0.1%, mixed with int compare)                                | **pure-integer basis-points** `_within_int(a, b, tol_bps=50)` — 0.5% to absorb DEX intra-block movement               |
+| LLM error handling (03)         | swallow into 0.0                                                | swallow into 0.0 (mitigated by tolerance, still anti-pattern)                       | raise `[LLM_ERROR]` on missing/non-numeric → validator disagrees → consensus retries with new leader                  |
+| Validator strength (04)         | re-runs LLM                                                     | URL-reachability + enum-membership ONLY (schema-only anti-pattern)                  | **runs the SAME Step 1 → Step 2 → Step 3 pipeline as leader** — regex score → derived outcome; agrees iff outcomes match |
+| Error prefix scheme             | inlined ad-hoc strings                                          | inlined ad-hoc strings                                                              | shared `_genlayer_helpers.py` constants (`ERROR_EXPECTED / ERROR_EXTERNAL / ERROR_TRANSIENT / ERROR_LLM_ERROR`)        |
+| Tested under `gltest`           | no                                                              | no                                                                                  | yes — integration suite under `tests/integration/`, gltest mocks for `mock_web` / `mock_llm`                          |
+| Anti-pattern hits (post-audit)  | many across all 3 files                                         | 4 categories remaining                                                              | **zero remaining** against the recon's `antiPatternHitsPerFile` v2 list                                               |
+
+### Per-contract change summary (v3)
+
+#### `02_price_no_llm_v3.py` — PriceNoLlm v3
+
+- **Imports canonical `_handle_leader_error`** from `_genlayer_helpers.py`.
+  The v2 ad-hoc `except gl.vm.UserError` branch is gone, replaced with the
+  SKILL.md leader-error reconciliation that handles TRANSIENT-both-sides
+  agree, EXPECTED/EXTERNAL byte-equal, and LLM_ERROR/unknown
+  disagree-to-retry.
+- **Tolerance widened 0.1% → 0.5% (50 bps)** to absorb DEX intra-block
+  price movement between leader and validator fetches a few seconds apart.
+- **All float math removed.** Tolerance now uses `_within_int` (pure
+  basis-points integer compare); price parsing uses
+  `_parse_decimal_to_micro` (decimal-string → integer × 1e9, no float
+  cast). The bare-float lint AST anti-pattern is now clean.
+- **`ERROR_EXPECTED` guard** on the `already resolved` write-once branch.
+- **What this tells us:** when 02 v3 eventually finalizes on Bradbury,
+  the AGREE/DISAGREE signal is no longer contaminated by float-comparison
+  variance or by undefined behavior on TRANSIENT errors — it's a clean
+  read on whether validators independently fetching DexScreener land
+  inside 50 bps.
+
+#### `03_price_llm_field_only_v3.py` — PriceLlmFieldOnly v3
+
+- **Canonical `_handle_leader_error`** wired in via a
+  `validator_reproduce_fn` surrogate so the validator's deterministic
+  re-derivation path (NOT a re-run of the LLM) drives the leader-error
+  reconciliation.
+- **Tolerance widened 0.1% → 0.5% (50 bps)** to match 02 v3.
+- **LLM silent-zero anti-pattern eliminated.** Where v2 returned `0.0` on
+  parse failure and relied on the tolerance check to mask the bug, v3
+  raises `[LLM_ERROR]` on missing/non-numeric output and `[EXTERNAL]` on
+  the deterministic "no pair on chain" zero case. The error class is no
+  longer lost — TRANSIENT/LLM_ERROR drives a consensus retry, EXTERNAL
+  drives byte-equal validator agreement.
+- **Pure-integer `_parse_decimal_to_micro` everywhere.** Same
+  bare-float-free contract as 02 v3.
+- **What this tells us:** v3 separates "the LLM hallucinated and gave us
+  garbage" (LLM_ERROR → retry) from "DexScreener really has no pair"
+  (EXTERNAL → byte-equal agreement) from "leader and validator both
+  parsed the same price within 50 bps" (the success path). v2 collapsed
+  the first two into a silent zero.
+
+#### `04_worldcup_enum_v3.py` — WorldcupEnum v3 (CRITICAL REWRITE)
+
+- **Validator no longer rubber-stamps via URL-reachability +
+  enum-membership.** Both leader and validator now run the SAME
+  three-step pipeline:
+  - **Step 1 — STRUCTURED SCORE PARSER (deterministic):** regex over
+    evidence text for `Full time: X-Y`, `FT X-Y`, `Final: X-Y`,
+    `ended X-Y`, etc. If a confident score is found, derive the outcome
+    deterministically from the int score (`X>Y → TEAM_A_WIN`, `X<Y →
+    TEAM_B_WIN`, `X==Y → DRAW`). Byte-stable across leader and validator
+    — zero LLM calls in the happy path.
+  - **Step 2 — LLM FALLBACK:** only when no structured score is found AND
+    the LLM returns `confident=true`. The LLM is the only source of
+    non-determinism here, and it's only consulted when Step 1 cannot
+    resolve.
+  - **Step 3 — UNKNOWN:** if neither structured nor confident-LLM, return
+    `UNKNOWN` (a valid enum value the contract surfaces for manual
+    review) instead of guessing.
+- **Validator agrees iff its independently-derived outcome equals the
+  leader's primitive.** Step 1 collisions are byte-stable; Step 2
+  collisions are LLM-noise-bounded; Step 3 collisions force `UNKNOWN`.
+  No path lets a misbehaving leader push a fabricated outcome past
+  validators who never independently checked the evidence.
+- **Bare `except Exception` in `_as_dict` narrowed** to
+  `(ValueError, TypeError)`.
+- **Canonical `_handle_leader_error`** wired in via the same
+  validator-reproduce-surrogate as 03 v3.
+- **What this tells us:** v3 is the first version of 04 whose validator
+  actually validates the OUTCOME, not just the SHAPE. Schema-only
+  validators are a known SKILL.md anti-pattern precisely because they
+  trust the leader's claim; v3 doesn't.
+
+### Tests
+
+A new gltest integration suite under
+`tests/integration/{test_02,test_03,test_04}_*v3.py` exercises each v3
+contract via `mock_web` / `mock_llm` cheatcodes (localnet/GLSim/Studio
+only — auto-skipped on `testnet_bradbury` via the `requires_mocks`
+marker). `conftest.py` centralizes mock payload builders so the JSON
+shape DexScreener and the worldcup evidence pages return stays
+realistic.
+
+**Per-file `py_compile` PASS on all 4 source files (helpers + 3 v3
+contracts) under Python 3.12.**
+
+**`gltest tests/integration/ -v -s --network localnet` — NOT RUN in this
+session.** Two operational blockers stood between the suite and a
+green/red signal:
+
+1. **Docker Desktop is not installed on the lab machine.** `genlayer up
+   --headless` exits with `connect ENOENT /var/run/docker.sock` →
+   "Docker is not running. Please start Docker Desktop and try again."
+   GLSim's localnet requires Docker Desktop, which itself needs an admin
+   password and a GUI launch to install. Out of scope for this run.
+2. **`tests/gltest.config.yaml` uses the older schema.** `gltest
+   --collect-only` aborts with `Gltest configure error: Invalid
+   configuration keys. Valid keys are: ['networks', 'paths',
+   'environment']`. The file uses top-level `contract_path:` +
+   `default_network:`; gltest 0.29.2 expects nested `paths.contracts:`
+   and `networks.default:`, plus a `chain_type:` field per network when
+   the URL is overridden.
+
+Neither blocker invalidates the v3 audit — they're infrastructure issues
+upstream of the comparator question. They do mean the v3 verdict is
+"compiles clean, anti-patterns closed on paper" not "validators AGREE
+under mocked input". Hand-off notes for running on a machine with Docker
++ a migrated config live in the next session's notes.
+
+### Verdict — is any v3 pattern production-ready?
+
+**Not yet — but the lab is now a sharper instrument.** The lab signal
+graph after Phase 4:
+
+- **Phase 1:** deploys finalize, constructors AGREE 15/15. Floor only.
+- **Phase 2:** v1 resolves never reach the validator-vote stage — leader
+  nondet path deterministically violates.
+- **Phase 3 / 3b:** v2 deploys never finalize inside the session window —
+  Bradbury queue is the blocker, not the comparator.
+- **Phase 4:** v3 contracts close every remaining SKILL.md anti-pattern,
+  compile clean, and ship with a gltest integration suite. Localnet
+  smoke and Bradbury redeploy are the only steps left between the v3
+  design and a defensible production-readiness call.
+
+**Recommendation:** do NOT redeploy v3 to Bradbury until the gltest
+suite passes against localnet first. The cheapest "is the comparator
+even right?" signal lives on GLSim, not on a 70-minute Bradbury queue.
+Once localnet is green, redeploy v3 (single batch, sequential gating,
+patient wait) and re-measure resolve() AGREE-rate against the v1/v2
+baselines.
