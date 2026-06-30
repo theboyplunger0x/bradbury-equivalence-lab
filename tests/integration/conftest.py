@@ -138,12 +138,35 @@ def evidence_payload_unknown() -> str:
 # --- LLM mock builders ------------------------------------------------------
 
 def llm_response_price(price_usd: float) -> str:
-    """LLM extracts the priceUsd field."""
-    return json.dumps({"price_usd": price_usd})
+    """LLM extracts the price and returns it as integer micro-USD (price * 1e9).
+
+    Contract 03 v3 requires integer-only output under the key
+    `price_micro_usd`. We multiply here so callers can keep writing tests
+    in human-readable USD.
+    """
+    micro = int(round(price_usd * 1_000_000_000))
+    return json.dumps({"price_micro_usd": micro})
+
+
+def llm_response_price_micro(price_micro_usd: int) -> str:
+    """LLM returns a raw integer micro-USD value (for tests that need exact integers)."""
+    return json.dumps({"price_micro_usd": int(price_micro_usd)})
+
+
+def llm_response_price_float_leak(price_usd: float) -> str:
+    """LLM ignores the integer-only rule and returns a float — drives [LLM_ERROR]."""
+    # Emit as a JSON number that explicitly carries a decimal point so the
+    # downstream regex digit-only check rejects it.
+    return json.dumps({"price_micro_usd": float(price_usd)})
 
 
 def llm_response_garbage() -> str:
     """LLM returned a malformed shape — drives [LLM_ERROR] path."""
+    return json.dumps({"not_the_right_field": "lol"})
+
+
+def llm_response_outcome_garbage() -> str:
+    """LLM fallback for contract 04 returns garbage missing `outcome` — drives [LLM_ERROR]."""
     return json.dumps({"not_the_right_field": "lol"})
 
 

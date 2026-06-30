@@ -36,6 +36,15 @@ from _genlayer_helpers import (
     _within_int,
 )
 import json
+import re
+
+
+# LLM is constrained to return ONLY digits (price encoded as price * PRICE_SCALE
+# in integer micro-USD). Anything containing a decimal point, currency symbol,
+# scientific notation, sign, or whitespace inside the digits is rejected as
+# LLM_ERROR — preventing float-string leaks that would non-deterministically
+# truncate or raise on int() cast.
+_DIGITS_ONLY_RE = re.compile(r"^\d+$")
 
 
 TOLERANCE_BPS = 50  # 0.5% — matches contract 02 v3 so consensus is comparable.
@@ -111,9 +120,17 @@ def _parse_decimal_to_micro(value) -> int:
 def _extract_price_micro_via_llm(symbol: str, chain: str, raw_payload: str) -> int:
     """Leader-only path: prompt the LLM to extract priceUsd.
 
+    The LLM is constrained to return an INTEGER ONLY (price * PRICE_SCALE,
+    encoded as price_micro_usd). Any float-string ("1234.56"), currency
+    symbol, scientific notation, or non-digit character is rejected as
+    LLM_ERROR — preventing nondeterministic int()-cast behavior (which
+    would either raise ValueError or silently truncate depending on the
+    Python build's str-to-int coercion path).
+
     Returns the integer micro_usd. Raises ERROR_LLM_ERROR if the LLM
-    output is unparseable or missing the expected key — per SKILL.md,
-    this forces validators to disagree and triggers consensus retry.
+    output is unparseable, missing the expected key, or not strictly
+    digit-only — per SKILL.md, this forces validators to disagree and
+    triggers consensus retry.
     """
     snippet = raw_payload[:12000]
     prompt = f"""
@@ -124,34 +141,61 @@ Chain requested: {chain}
 
 Task: from the JSON below, pick the pair where chainId == "{chain.lower()}"
 AND baseToken.symbol == "{symbol.upper()}" with the HIGHEST liquidity.usd.
-Return that pair's priceUsd as a JSON number under the key "price_usd".
+Take that pair's priceUsd field and convert it to MICRO-USD by multiplying
+by 1_000_000_000 (one billion), then ROUNDING to the nearest integer.
+Return that integer under the key "price_micro_usd".
 
-Rules:
-- Return JSON only.
-- If no matching pair exists, return {{"price_usd": 0}}.
-- Do NOT include explanations, units, or extra fields.
+CRITICAL formatting rules (any violation = invalid response):
+- "price_micro_usd" MUST be a JSON integer (no decimal point, no fraction).
+- Do NOT return a float, a string, scientific notation, or units.
+- Do NOT include currency symbols ($, USD), commas, signs, or whitespace
+  inside the number.
+- Allowed values are non-negative integers only (0 or positive).
+- If no matching pair exists, return {{"price_micro_usd": 0}}.
+- Return JSON only — no explanations, no extra keys.
+
+Example for priceUsd = "65000.123456789":
+{{"price_micro_usd": 65000123456789}}
 
 JSON payload:
 {snippet}
 
 Return this exact JSON shape:
-{{"price_usd": <number>}}
+{{"price_micro_usd": <integer>}}
 """
     raw = gl.nondet.exec_prompt(prompt, response_format="json")
     data = _as_dict(raw)
-    if "price_usd" not in data:
-        raise gl.vm.UserError(f"{ERROR_LLM_ERROR} missing price_usd in LLM output")
-    val = data.get("price_usd", 0)
-    # Pure-integer parse; if the LLM returned garbage (string, null, list),
-    # treat as an LLM error so consensus retries.
-    if isinstance(val, (int,)):
-        micro = val * PRICE_SCALE
-    elif isinstance(val, str) or hasattr(val, "__str__"):
-        micro = _parse_decimal_to_micro(val)
+    if "price_micro_usd" not in data:
+        raise gl.vm.UserError(f"{ERROR_LLM_ERROR} missing price_micro_usd in LLM output")
+    val = data.get("price_micro_usd", 0)
+
+    # Strict digit-only validation BEFORE int() cast. We accept either a
+    # JSON integer (Python int, but NOT bool — bool is an int subclass) or
+    # a digit-only string. Floats, scientific notation, signed values,
+    # whitespace, and currency-prefixed strings are all rejected.
+    if isinstance(val, bool):
+        raise gl.vm.UserError(f"{ERROR_LLM_ERROR} non-integer price_micro_usd: bool")
+    if isinstance(val, int):
+        micro = val
+    elif isinstance(val, str):
+        s = val.strip()
+        if not _DIGITS_ONLY_RE.match(s):
+            raise gl.vm.UserError(
+                f"{ERROR_LLM_ERROR} non-digit price_micro_usd string: {s[:32]!r}"
+            )
+        try:
+            micro = int(s)
+        except ValueError:
+            raise gl.vm.UserError(
+                f"{ERROR_LLM_ERROR} unparseable price_micro_usd string: {s[:32]!r}"
+            )
     else:
-        raise gl.vm.UserError(f"{ERROR_LLM_ERROR} non-numeric price_usd: {type(val).__name__}")
+        raise gl.vm.UserError(
+            f"{ERROR_LLM_ERROR} non-numeric price_micro_usd: {type(val).__name__}"
+        )
+
     if micro < 0:
-        raise gl.vm.UserError(f"{ERROR_LLM_ERROR} negative price_usd")
+        raise gl.vm.UserError(f"{ERROR_LLM_ERROR} negative price_micro_usd")
     if micro == 0:
         # Treat zero as "no pair found" per the prompt contract — that is a
         # deterministic external condition, NOT an LLM bug. Surface it as

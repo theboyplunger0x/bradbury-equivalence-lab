@@ -819,3 +819,128 @@ even right?" signal lives on GLSim, not on a 70-minute Bradbury queue.
 Once localnet is green, redeploy v3 (single batch, sequential gating,
 patient wait) and re-measure resolve() AGREE-rate against the v1/v2
 baselines.
+
+
+## Phase 4b — Codex review + targeted fixes
+
+After Phase 4 shipped, Codex did an adversarial pass over the v3 contracts
+and the integration test suite. Verdict was **NOT READY** with 4 fix
+items (Q1-Q4). We agreed on Q3 + Q4, disagreed on Q1, and Q2 was a
+documentation nit folded into this section.
+
+### Q1 — `_handle_leader_error` shape (DISAGREED, no code change)
+
+Codex flagged `_genlayer_helpers.py:26-62` as "non-canonical" because it
+re-raises `gl.vm.UserError` via a `try/except` ladder instead of the
+single-line "raise on disagreement" form Codex remembered from an older
+draft. We DID NOT change the helper because our implementation matches
+the canonical SKILL.md reference exactly.
+
+Canonical source:
+[`plugins/genlayer-dev/skills/write-contract/SKILL.md`](https://github.com/genlayerlabs/skills/blob/main/plugins/genlayer-dev/skills/write-contract/SKILL.md)
+
+SKILL.md spells out the rule we encode in `_handle_leader_error` verbatim:
+
+> Deterministic errors: must match exactly (byte-equal). EXPECTED and
+> EXTERNAL classes only agree on byte-equal message; TRANSIENT agrees if
+> both sides independently observe a transient class; LLM_ERROR and
+> unknown classes always disagree to force leader rotation.
+
+That is precisely the branch structure in `_genlayer_helpers.py:51-58`:
+EXPECTED/EXTERNAL → byte-equal compare; TRANSIENT → "both transient";
+LLM_ERROR / fallthrough → return False. We logged the disagreement here
+so the next reviewer doesn't relitigate it.
+
+### Q3 — Tighten 03 LLM `priceUsd` parse (FIXED)
+
+The v3 contract 03 (`03_price_llm_field_only_v3.py`) was still accepting
+a JSON `priceUsd` float and casting it via `int(str(float))`, which is
+the exact nondeterminism leak the SKILL.md anti-pattern catalog forbids
+(any float in the LLM payload makes the leader/validator round
+differently across runs).
+
+Fix in `03_price_llm_field_only_v3.py:29-50` + `113-200`:
+
+- Added `import re` and a precompiled `_DIGITS_ONLY_RE = re.compile(r"^\d+$")`.
+- Rewrote `_extract_price_micro_via_llm`'s prompt to require an
+  INTEGER-ONLY response under a new key `price_micro_usd`
+  (= `priceUsd * 1_000_000_000`, rounded). The prompt contains
+  CRITICAL formatting rules forbidding decimals, floats, scientific
+  notation, currency symbols, commas, signs, and whitespace.
+- Strict pre-cast validation: `bool` rejected (subclass of `int`),
+  `int` accepted as-is, `str` accepted ONLY if it matches `^\d+$`,
+  anything else → `gl.vm.UserError(f"{ERROR_LLM_ERROR} ...")`.
+
+This eliminates the `int(str(float))` leak path entirely. Float-shaped
+inputs now deterministically fail with `[LLM_ERROR]` instead of
+silently rounding into the consensus.
+
+### Q4 fix 1 — 4xx external tests added
+
+External 4xx responses must surface as `[EXTERNAL]` (deterministic, both
+validators agree on byte-equal message) and must NOT mutate contract
+state. Previously the suite only covered 2xx happy paths and 5xx
+transients.
+
+Added parametrized `[400, 404]` tests:
+
+- `tests/integration/test_02_price_no_llm_v3.py:131-159`
+  (`test_external_4xx_surfaces_external_error`) — DexScreener 4xx →
+  contract throws `[EXTERNAL]`, state unchanged.
+- `tests/integration/test_03_price_llm_field_only_v3.py:147-178`
+  (`test_external_4xx_dexscreener_surfaces_external_error`) — verifies
+  the LLM is NEVER reached because `_http_get_text` fails first.
+- `tests/integration/test_04_worldcup_enum_v3.py:189-220`
+  (`test_external_4xx_evidence_surfaces_external_error`) — both
+  evidence URLs return 4xx so `_fetch_all_evidence` aggregates to a
+  deterministic `[EXTERNAL]`.
+
+### Q4 fix 2 — LLM_ERROR tests added
+
+LLM misbehavior must surface as `[LLM_ERROR]` (non-deterministic class →
+always disagree → leader rotation). Two new tests prove the v3 contracts
+gate consensus on garbage LLM output:
+
+- `tests/integration/test_03_price_llm_field_only_v3.py:113-145`
+  (`test_llm_error_float_leak_blocks_consensus`) — LLM returns a JSON
+  float under `price_micro_usd`; the new digit-only guard from Q3
+  rejects → `[LLM_ERROR]`, consensus fails, state unchanged.
+- `tests/integration/test_04_worldcup_enum_v3.py:223-253`
+  (`test_llm_error_garbage_fallback_output_blocks_consensus`) — evidence
+  has no structured score (forces LLM fallback) and LLM returns garbage
+  missing the `outcome` key; `_llm_fallback_outcome` raises
+  `[LLM_ERROR]`, the canonical helper disagrees, the tx fails, state
+  unchanged.
+
+### Supporting changes
+
+`tests/integration/conftest.py:140-172` updated to match the new prompt
+contract:
+
+- `llm_response_price(price_usd)` now emits
+  `{"price_micro_usd": int(price_usd * 1e9)}` matching the Q3 prompt.
+- Added `llm_response_price_micro` (integer-form helper),
+  `llm_response_price_float_leak` (deliberate float for the LLM_ERROR
+  test), and `llm_response_outcome_garbage` (missing `outcome` key for
+  contract 04's LLM_ERROR test).
+
+### Verification
+
+- `py_compile` PASS on all 5 modified files.
+- `gltest --collect-only` collects **19 tests** across 3 modules with no
+  errors:
+  - `test_02_price_no_llm_v3.py`: 5 tests
+  - `test_03_price_llm_field_only_v3.py`: 6 tests
+  - `test_04_worldcup_enum_v3.py`: 8 tests
+- Includes all new tests: external_4xx parametrized `[400, 404]` on
+  contracts 02/03/04, `llm_error_float_leak_blocks_consensus` on 03,
+  and `llm_error_garbage_fallback_output_blocks_consensus` on 04.
+
+### Verdict after 4b
+
+The v3 contracts now close every Codex-flagged item we agreed with (Q3
++ Q4) and we've documented the canonical-helper disagreement (Q1) with
+a direct SKILL.md citation so it doesn't get reopened. The suite still
+needs to actually RUN (not just collect) against localnet before any
+production-readiness call — Phase 4b is "design closed + tests
+authored", not "tests green".

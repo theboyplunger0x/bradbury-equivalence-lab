@@ -24,6 +24,7 @@ from conftest import (
     dexscreener_payload_btc_base,
     llm_response_garbage,
     llm_response_price,
+    llm_response_price_float_leak,
 )
 
 
@@ -101,6 +102,74 @@ def test_llm_error_garbage_output_blocks_consensus(vm_context):
     tx_receipt = contract.resolve(args=[]).transact()
     assert not tx_execution_succeeded(tx_receipt), (
         "LLM_ERROR: garbage LLM output must NOT settle as successful execution"
+    )
+
+    state = contract.get_price(args=[]).call()
+    assert state["resolved"] is False
+    assert state["price_micro_usd"] == "0"
+
+
+@pytest.mark.requires_mocks
+def test_llm_error_float_leak_blocks_consensus(vm_context):
+    """LLM returns a JSON float under price_micro_usd → leader raises [LLM_ERROR].
+
+    The v3 prompt requires INTEGER-ONLY output. If the LLM ignores that
+    contract and returns a float (e.g. 65000.5 instead of 65000500000000),
+    the digit-only regex guard MUST reject before the int() cast — which
+    would otherwise truncate or raise nondeterministically. Per the
+    canonical scheme, validators disagree and consensus retries.
+    """
+    factory = get_contract_factory("PriceLlmFieldOnly", source_file=CONTRACT_FILENAME)
+
+    payload = dexscreener_payload_btc_base(price_usd="65000.5", liquidity_usd="999")
+    vm_context.mock_web(
+        DEXSCREENER_REGEX,
+        {"status": 200, "body": payload},
+    )
+    # The LLM returns a float, ignoring the integer-only contract.
+    vm_context.mock_llm(
+        LLM_PRICE_PROMPT_REGEX,
+        llm_response_price_float_leak(65000.5),
+    )
+
+    contract = _deploy_btc_base(factory)
+
+    tx_receipt = contract.resolve(args=[]).transact()
+    assert not tx_execution_succeeded(tx_receipt), (
+        "LLM_ERROR: float-leak LLM output must NOT settle as successful execution"
+    )
+
+    state = contract.get_price(args=[]).call()
+    assert state["resolved"] is False
+    assert state["price_micro_usd"] == "0"
+
+
+@pytest.mark.requires_mocks
+@pytest.mark.parametrize("status_code", [400, 404])
+def test_external_4xx_dexscreener_surfaces_external_error(vm_context, status_code):
+    """DexScreener returns 4xx → contract throws [EXTERNAL]; LLM never runs.
+
+    Deterministic external failure: _http_get_text raises [EXTERNAL] before
+    the LLM is consulted. Validators independently see the same 4xx and
+    agree byte-equal per the canonical helper.
+    """
+    factory = get_contract_factory("PriceLlmFieldOnly", source_file=CONTRACT_FILENAME)
+
+    vm_context.mock_web(
+        DEXSCREENER_REGEX,
+        {"status": status_code, "body": "Not Found"},
+    )
+    # LLM mock is a no-op here — leader never reaches it (HTTP fails first).
+    vm_context.mock_llm(
+        LLM_PRICE_PROMPT_REGEX,
+        llm_response_price(65000.0),
+    )
+
+    contract = _deploy_btc_base(factory)
+
+    tx_receipt = contract.resolve(args=[]).transact()
+    assert not tx_execution_succeeded(tx_receipt), (
+        f"external: resolve() must fail when DexScreener returns {status_code}"
     )
 
     state = contract.get_price(args=[]).call()

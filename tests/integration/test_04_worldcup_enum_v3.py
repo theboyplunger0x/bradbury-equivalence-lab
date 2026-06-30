@@ -27,6 +27,7 @@ from conftest import (
     evidence_payload_team_a_win,
     evidence_payload_team_b_win,
     evidence_payload_unknown,
+    llm_response_outcome_garbage,
     llm_response_unknown,
 )
 
@@ -181,3 +182,76 @@ def test_transient_when_all_sources_503(vm_context):
     state = contract.get_outcome(args=[]).call()
     assert state["resolved"] is False
     assert state["outcome"] == "UNKNOWN"  # init default
+
+
+# --- EXTERNAL 4xx -----------------------------------------------------------
+
+@pytest.mark.requires_mocks
+@pytest.mark.parametrize("status_code", [400, 404])
+def test_external_4xx_evidence_surfaces_external_error(vm_context, status_code):
+    """One evidence URL returns 4xx and the other returns 4xx → [EXTERNAL].
+
+    _fetch_all_evidence raises [EXTERNAL] when zero snippets were collected
+    AND every failure was a deterministic 4xx (no transients). Validators
+    independently see the same condition; the canonical helper agrees
+    byte-equal on the EXTERNAL-prefixed message.
+
+    We mock at least one URL returning 4xx; the other also 4xx so the
+    aggregated condition is unambiguously "external-only".
+    """
+    factory = get_contract_factory("WorldcupEnum", source_file=CONTRACT_FILENAME)
+
+    vm_context.mock_web(
+        EVIDENCE_REGEX_BBC,
+        {"status": status_code, "body": "Not Found"},
+    )
+    vm_context.mock_web(
+        EVIDENCE_REGEX_ESPN,
+        {"status": status_code, "body": "Not Found"},
+    )
+
+    contract = _deploy(factory)
+    tx_receipt = contract.resolve(args=[]).transact()
+    assert not tx_execution_succeeded(tx_receipt), (
+        f"external: resolve() must fail when every evidence URL returns {status_code}"
+    )
+
+    state = contract.get_outcome(args=[]).call()
+    assert state["resolved"] is False
+    assert state["outcome"] == "UNKNOWN"  # init default unchanged
+
+
+# --- LLM_ERROR --------------------------------------------------------------
+
+@pytest.mark.requires_mocks
+def test_llm_error_garbage_fallback_output_blocks_consensus(vm_context):
+    """No structured score + LLM returns garbage → [LLM_ERROR], consensus fails.
+
+    Forces the Step 2 LLM fallback by serving evidence with NO regex-parseable
+    score, then makes the LLM return a malformed JSON shape missing the
+    required `outcome` key. _llm_fallback_outcome raises [LLM_ERROR]; the
+    canonical _handle_leader_error DISAGREES, forcing leader rotation, and
+    after retries the tx is reported as failed execution with no state
+    change.
+    """
+    factory = get_contract_factory("WorldcupEnum", source_file=CONTRACT_FILENAME)
+
+    body = evidence_payload_unknown()
+    vm_context.mock_web(EVIDENCE_REGEX_BBC, {"status": 200, "body": body})
+    vm_context.mock_web(EVIDENCE_REGEX_ESPN, {"status": 200, "body": body})
+
+    # LLM fallback returns garbage (missing `outcome`) — triggers LLM_ERROR.
+    vm_context.mock_llm(
+        LLM_OUTCOME_PROMPT_REGEX,
+        llm_response_outcome_garbage(),
+    )
+
+    contract = _deploy(factory)
+    tx_receipt = contract.resolve(args=[]).transact()
+    assert not tx_execution_succeeded(tx_receipt), (
+        "LLM_ERROR: garbage LLM fallback output must NOT settle as successful execution"
+    )
+
+    state = contract.get_outcome(args=[]).call()
+    assert state["resolved"] is False
+    assert state["outcome"] == "UNKNOWN"  # init default unchanged

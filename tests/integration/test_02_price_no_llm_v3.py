@@ -128,3 +128,31 @@ def test_external_no_pairs_surfaces_external_error(vm_context):
 
     state = contract.get_price(args=[]).call()
     assert state["resolved"] is False
+
+
+@pytest.mark.requires_mocks
+@pytest.mark.parametrize("status_code", [400, 404])
+def test_external_4xx_surfaces_external_error(vm_context, status_code):
+    """DexScreener returns 4xx → contract throws [EXTERNAL] and stays unresolved.
+
+    Per SKILL.md, 4xx is the deterministic external class: validators
+    independently see the same 4xx and the canonical _handle_leader_error
+    agrees byte-equal on the prefixed error message. No state change.
+    """
+    factory = get_contract_factory("PriceNoLlm", source_file=CONTRACT_FILENAME)
+
+    vm_context.mock_web(
+        DEXSCREENER_REGEX,
+        {"status": status_code, "body": "Not Found"},
+    )
+
+    contract = _deploy_btc_base(factory)
+
+    tx_receipt = contract.resolve(args=[]).transact()
+    assert not tx_execution_succeeded(tx_receipt), (
+        f"external: resolve() must fail when DexScreener returns {status_code}"
+    )
+
+    state = contract.get_price(args=[]).call()
+    assert state["resolved"] is False, "no state should change on external 4xx failure"
+    assert state["price_micro_usd"] == "0"
