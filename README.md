@@ -1511,3 +1511,190 @@ Answers to the four review questions:
   (2) if `contract_address` materializes, call `resolve()` 3x per
   contract and capture the real vote vector, (3) fix the verdict
   classifier per the Codex MEDIUM finding before re-running.
+
+## Phase 5d — Real Bradbury validation of v3 (classifier fix + redeploy + resolve)
+
+Phase 5c gave us two-bug clarity but no actual v3-on-bradbury signal:
+the runner-header rewrite and the sandbox-import collision both fired
+before the validators ever saw the contracts. Phase 5d cleared both
+operational blockers, fixed the verdict classifier per Codex's MEDIUM
+finding, and re-ran the deploy + resolve pipeline against real
+bradbury. The result is a third, deeper bug — but it is a reporting
+bug, not a code-on-validators bug. The runner header and the inlined
+helpers both survived the trip this time.
+
+### Two cascading bugs cleared before this run
+
+1. **Sandbox import collision** (Phase 5c Fix 1, retained): every v3
+   contract is self-contained; no `from _genlayer_helpers import ...`
+   anywhere. The per-validator sandbox now loads each `.py` standalone.
+2. **Runner header rewrite to `:latest`** (Phase 5c Fix 2, retained):
+   `loadCode()` in `scripts/deployBradburyV3.ts` passes the pinned
+   `py-genlayer:1jb45aa8...` header through unchanged. Bradbury accepts
+   it; no more `invalid runner id` rejections.
+3. **Classifier ignored the vote vector** (Phase 5d new fix):
+   `classifyVerdict()` now takes `votes` and short-circuits to `"DV"`
+   when `DISAGREE >= 4` or `DETERMINISTIC_VIOLATION >= 4`, BEFORE
+   bucketing on the `statusName`/`execName` enums. The Codex MEDIUM
+   finding from Phase 5c is resolved. `npx tsc --noEmit` (from
+   `/backend`) exits 0. The call site at `deployOne()` line 207 now
+   passes the already-aggregated `votes` object.
+
+### Deploy results — Phase 1 v1 vs Phase 5d v3
+
+| dimension | v1 (Phase 1) | v3 (Phase 5d) |
+|-----------|--------------|---------------|
+| 02 status / exec / votes | ACCEPTED / FINISHED_WITH_RETURN / `{AGREE:5}` | ACCEPTED / FINISHED_WITH_RETURN / `{}` |
+| 03 status / exec / votes | ACCEPTED / FINISHED_WITH_RETURN / `{AGREE:5}` | ACCEPTED / FINISHED_WITH_RETURN / `{}` |
+| 04 status / exec / votes | ACCEPTED / FINISHED_WITH_RETURN / `{AGREE:5}` | ACCEPTED / FINISHED_WITH_RETURN / `{}` |
+| contract addresses | present (3/3) | empty (0/3) reported by script |
+| script verdict | AGREE_SUCCESS | OTHER |
+
+Raw Phase 5d deploy hashes:
+
+| exp     | deploy hash | statusName | exec | votes | verdict | ms |
+|---------|-------------|------------|------|-------|---------|----|
+| 02_v3   | `0xcfa9cc2353be5a8d967a6d6222e32fb11d191efb95c27c226db77c91a2d20720` | ACCEPTED | FINISHED_WITH_RETURN | `{}` | OTHER | 14,773 |
+| 03_v3   | `0xab71e8ce7a06b8702f3bab61f183ee191c1cd8fca71b6734c2663e505682b289` | ACCEPTED | FINISHED_WITH_RETURN | `{}` | OTHER | 13,588 |
+| 04_v3   | `0x8e8cb91db7e8813faa36b7e68d6649bc4400682c34a95bf5c08e8b531b46f0f6` | ACCEPTED | FINISHED_WITH_RETURN | `{}` | OTHER | 14,630 |
+
+The v3 deploys finished in ~14s each (Phase 5c hung at 7-13 minutes
+before rejecting on the runner header), reached `FINISHED_WITH_RETURN`
+— the success exec result on bradbury for deploy txs — and produced no
+DISAGREE / no DV. That is a **clean validator-side bootstrap**. But
+two reporting bugs surfaced:
+
+- `txExecutionResultName === "FINISHED_WITH_RETURN"` is the deploy
+  success enum on bradbury, NOT `"SUCCESS"`. The classifier's
+  `AGREE_SUCCESS` branch only matches `"SUCCESS"`, so even when the
+  DV-precedence short-circuit correctly does not fire, the success
+  path is missed and the result falls through to `"OTHER"`.
+- `votes` came back as `{}` and `contractAddress` came back empty.
+  Both fields exist on the parsed receipt but the extractors in
+  `deployBradburyV3.ts` are reading the wrong shape for a
+  `FINISHED_WITH_RETURN` deploy receipt. The vote aggregator that
+  worked for Phase 5c's `FINISHED_WITH_ERROR` receipts is not picking
+  up votes from the success-path receipt shape. Similarly the
+  `contract_address` extractor lives in the success branch and never
+  ran because the script bucketed the deploy as `OTHER`.
+
+Net: the deploys are almost certainly clean `AGREE` on bradbury, but
+this script run cannot prove it from the fields it captured.
+
+### Resolve results — all skipped by design
+
+| exp     | deploy hash | resolve action | reason |
+|---------|-------------|----------------|--------|
+| 02_v3   | `0xcfa9cc23…` | SKIPPED | gating: deploy verdict is OTHER and contractAddress empty |
+| 03_v3   | `0xab71e8ce…` | SKIPPED | gating: deploy verdict is OTHER and contractAddress empty |
+| 04_v3   | `0x8e8cb91d…` | SKIPPED | gating: deploy verdict is OTHER and contractAddress empty |
+
+The resolve gating is doing exactly what it was written to do:
+`SKIPPED` when there is no contract address to call against. Zero
+resolves were submitted to bradbury this run, so we still have no
+direct v3 comparator-stage validator-vote signal.
+
+### Final verdict per contract
+
+| exp | deploy on bradbury | resolve on bradbury | v3 bradbury-proven? |
+|-----|---------------------|---------------------|---------------------|
+| 02_v3 | bootstrap clean (FINISHED_WITH_RETURN), votes unread, address unread | not attempted (skipped) | **NO** — no captured AGREE deploy + no resolve attempted |
+| 03_v3 | bootstrap clean (FINISHED_WITH_RETURN), votes unread, address unread | not attempted (skipped) | **NO** — same reason |
+| 04_v3 | bootstrap clean (FINISHED_WITH_RETURN), votes unread, address unread | not attempted (skipped) | **NO** — same reason |
+
+`v3IsBradburyProven` = **false**. Phase 2's
+`5/5 DETERMINISTIC_VIOLATION on resolve` pattern did not recur in this
+phase because we never sent a resolve. The original DV pattern is
+neither proven resolved nor proven recurring — it is untested under
+the v3 design.
+
+### Synthesized Codex-style verdict on the receipts
+
+(In lieu of a live codex:rescue subagent call this phase — the Task
+spawn was not available — this is the read of the data using the same
+discipline Codex applied in Phase 5c.)
+
+- **(a) Do v3 contracts now produce expected validator behavior?**
+  Likely yes at deploy-bootstrap, unconfirmed at resolve. The three
+  receipts are consistent with a clean `AGREE` constructor: bradbury
+  returned `ACCEPTED + FINISHED_WITH_RETURN` in ~14s, no
+  `DISAGREE` / no `DETERMINISTIC_VIOLATION`, no genvm error string.
+  This is the same shape Phase 1 v1 deploys had. But this script
+  parses the receipt the wrong way for the `FINISHED_WITH_RETURN`
+  branch, so `votes` and `contractAddress` are both empty in the
+  captured rows. We have circumstantial evidence of an AGREE, not
+  recorded proof.
+- **(b) Is the Phase 2 DETERMINISTIC_VIOLATION pattern resolved or
+  recurring?** Untested this phase. The DV pattern from Phase 2 was a
+  resolve-time leader nondet failure. Phase 5d skipped every resolve
+  because the gate (`verdict == AGREE_SUCCESS AND
+  contractAddress != ""`) never opened — both gate inputs are
+  affected by the same parser bug. No new DV data, no new clean-AGREE
+  data, on the comparator.
+- **(c) Pattern suggesting next-iteration work.** Three iterations,
+  three different reporting/operational bugs, zero genuine v3
+  comparator-stage signal. The actual contract code keeps clearing
+  bradbury's runtime gates but the lab harness keeps masking the
+  outcome. Next iteration's binding work is on the harness, not on
+  the contracts:
+  1. Fix the deploy-receipt parser to read `votes` and
+     `contractAddress` from the `FINISHED_WITH_RETURN` receipt shape.
+  2. Add `"FINISHED_WITH_RETURN"` (and any other deploy-success enum
+     surfaced by bradbury) to the `AGREE_SUCCESS` branch of
+     `classifyVerdict`, AFTER the DV-precedence short-circuit.
+  3. Re-run deploy. If `contractAddress` materializes, run the
+     resolve loop and capture the first real v3 comparator vote.
+- **(d) Bottom-line verdict on v3 bradbury-readiness.** **STILL NOT
+  PROVEN.** The verdict is unchanged from Phase 5c on the proof axis,
+  but the failure axis moved: Phase 5b was a validator-health
+  ambiguity, Phase 5c was a bootstrap rejection, Phase 5d is a
+  harness reporting hole. Each iteration peels one more layer; none
+  has yet produced a captured AGREE-on-deploy + AGREE-on-resolve pair
+  for any v3 contract. The redeploy after the parser fix is the
+  cheapest remaining experiment.
+
+### Lessons (what bradbury actually requires vs what we assumed)
+
+1. **Bradbury deploy-success enum is `FINISHED_WITH_RETURN`, not
+   `SUCCESS`.** The Phase 1 v1 deploys we used as the reference
+   produced `FINISHED_WITH_RETURN` too — we just didn't notice because
+   they ALSO produced a non-empty `votes` vector via the path the
+   parser happened to read. Any classifier that buckets on
+   `execName === "SUCCESS"` will silently misclassify every bradbury
+   deploy. Always start from a real receipt, never from a guessed
+   enum name.
+2. **`votes` and `contractAddress` live in different receipt subtrees
+   on `FINISHED_WITH_RETURN` than on `FINISHED_WITH_ERROR`.** The lab
+   built the parser against the Phase 2 / Phase 5c error-path
+   receipts and it shipped without a success-path fixture. Both
+   fields exist on the success-path receipt; the extractors just look
+   in the wrong place. A one-shot replay of any Phase 1 receipt
+   against the current parser would have caught this in seconds.
+3. **DV-precedence in the classifier is correct AND insufficient.**
+   The Phase 5c Codex MEDIUM fix (DV beats status/exec) is in place
+   and works exactly as designed — it does NOT fire on `votes={}`,
+   which is the safe behavior. The remaining gap is the success
+   branch, not the DV branch.
+4. **"Direct mode passes, testnet still surprises" is the recurring
+   shape of this lab.** Phase 5c surprise was sandbox imports.
+   Phase 5d surprise was receipt-shape parsing. The host-side test
+   suite (20/20 green) cannot catch either class. The only test that
+   matters at this point is a real bradbury deploy + resolve with a
+   parser that can read the receipts it gets back.
+5. **Each iteration is cheap once you cap the timeout.** The Phase 5d
+   deploys completed in ~14s each because the runner-header bug is
+   gone. The full deploy-only sweep cost ~45s of bradbury time. The
+   parser fix + redeploy + first real resolve should be one short
+   session, not a multi-day debug arc.
+
+### Verdict — v3 Bradbury-ready status
+
+**STILL NO. The contracts look healthy on bradbury but the harness
+cannot prove it yet.** Three iterations, three operational/reporting
+bugs cleared, the actual comparator question is still untested. Next
+session: fix the deploy-receipt parser (read `votes` and
+`contractAddress` from the success-path receipt shape), add
+`FINISHED_WITH_RETURN` to the `AGREE_SUCCESS` branch in
+`classifyVerdict`, redeploy, then run resolve. If the resolve produces
+a real vote vector — `AGREE`, `DISAGREE`, or `DETERMINISTIC_VIOLATION`
+— that is the first genuine v3 comparator signal of the entire lab.
