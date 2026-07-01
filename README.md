@@ -2352,3 +2352,95 @@ consensus behavior across oracle shapes so we can pick the right pattern
 for future oracles — Phase 7b confirms that `04_v4` is the correct
 source-level shape but leaves the Bradbury operating envelope
 (liveness / commit finalization) as the next open question.
+
+
+---
+
+## Phase 9 — recovery (bradbury-only cross-contract N=30, 2026-07-01)
+
+**Overnight goal**: comparative N=20 bradbury vs localnet for `04_v4`.
+**Reality**: localnet is currently **blocked by an upstream bug** in
+`yeagerai/simulator-database-migration:latest`. The container's
+`alembic.ini` hardcodes `sqlalchemy.url = ...@localhost/...` instead of
+reading `DB_URL` from env, so it cannot reach the sibling `postgres`
+container on the docker-compose network. `psycopg2.OperationalError:
+connection to server at "localhost" (::1), port 5432 failed: Connection
+refused` on every boot attempt. Reproducible with a fresh
+`genlayer up --headless --numValidators 5`. GenLayer CLI v0.39.2.
+
+**Recovery**: pivot to bradbury-only 3-contract batch to get a
+cross-shape comparison on the network we can actually reach. 30 total
+deploy+resolve pairs on a single funded wallet
+(`0x186d2dabBE79810A6F3cBD8C09033E96C767c121`), sequential (nonce race
+on shared wallet prevents parallel).
+
+### Data
+
+| Contract | N | Deploy AGREE | Resolve AGREE | End-to-end clean | Median total | P95 total |
+|---|---|---|---|---|---|---|
+| `02_price_no_llm_v3` (no LLM, DexScreener JSON int) | 10 | 8/10 (80%) | 7/10 (70%) | **7/10 (70%)** | 28s | 189s |
+| `04_worldcup_enum_v4` (structured JSON + web I/O per validator) | 15 | 13/15 (87%) | 8/15 (53%) | **8/15 (53%)** | 30s | 244s |
+| `03_price_llm_field_only_v3` (LLM at leader + validator re-derive) | 5 | 1/5 (20%) | 0/5 + 1 DV | **0/5 (0%)** | 214s | 214s |
+
+Raw batch logs: [`logs/phase9-04v4-bradbury-N15.log`](logs/phase9-04v4-bradbury-N15.log),
+[`logs/phase9-02v3-bradbury-N10.log`](logs/phase9-02v3-bradbury-N10.log),
+[`logs/phase9-03v3-bradbury-N5.log`](logs/phase9-03v3-bradbury-N5.log).
+
+Runner scripts (bradbury or localnet, per-run budget, JSON emit format):
+[`scripts/batchRunV02.ts`](scripts/batchRunV02.ts),
+[`scripts/batchRunV03.ts`](scripts/batchRunV03.ts),
+[`scripts/batchRunV4.ts`](scripts/batchRunV4.ts).
+
+### Findings
+
+1. **LLM materially impacts bradbury liveness.** 02_v3 (no LLM) 70%
+   clean vs 03_v3 (LLM) 0% clean. Small N=5 but the signal is stark:
+   4/5 deploys hit TIMEOUT and the one that got past deploy produced
+   the first DV we've observed in the whole lab (~40 total runs across
+   phases). This directly contradicts the earlier Phase 7b/8
+   working-hypothesis that "LLM isn't the culprit, it's just liveness"
+   — the LLM path is a distinct failure mode.
+
+2. **Even no-LLM contracts have ~30-50% single-validator failure on
+   bradbury.** 02_v3 clean 70%, 04_v4 clean 53%. Not catastrophic but
+   not production-grade without retry logic. Web I/O per validator (04)
+   adds ~15pp of variance over pure JSON parse (02).
+
+3. **First DV of the lab was in the LLM resolve path.** The one 03_v3
+   deploy that succeeded produced a resolve with `DETERMINISTIC_VIOLATION`
+   — validators re-deriving from the leader's LLM output didn't
+   converge. Suggests the "leader LLM + validator deterministic re-
+   derive" pattern needs either `gl.eq_principle.prompt_comparative`
+   or a very tight determinism gate to work on bradbury.
+
+4. **P95 latencies are alarming for FUD's UX**: 189s / 244s / 214s.
+   Any of these on the price-oracle path would break the "2-minute
+   settlement" experience.
+
+### Lessons locked (Phase 9)
+
+- Localnet was supposed to give us the "is it infra or is it protocol"
+  answer; upstream bug blocked that. Until localnet works, we cannot
+  fully attribute liveness variance to bradbury infra vs GenVM
+  protocol vs contract shape.
+- Chain scripts + separate bash processes are more reliable than
+  workflow subagents for multi-hour batch orchestration — the workflow
+  subagent that ran the first N=15 batch attempt didn't know how to
+  wait 8+ minutes for a background command and dropped its structured
+  output call. Direct `nohup ... &` + polling scripts finished all
+  three batches cleanly.
+- Nonce race on a shared wallet is a hard limit on parallelism per
+  network. Multi-arm bradbury runs need distinct funded wallets or
+  serial submission.
+
+### Framing
+
+**LAB / experimental.** Production FUD price + WC settlement uses
+studionet via `worldcupMatchAutoSettler.ts` / `genLayerOracle.ts` —
+this lab does not touch production. Findings inform whether we
+eventually want a bradbury-backed shadow oracle, not any live user
+path.
+
+See `MORNING_BRIEF.md`, `ALBERT_MESSAGE_DRAFT.md`, and
+`STAGE3_INTEGRATION_PLAN.md` at the repo root for the operator-facing
+summary + proposed follow-ups.
