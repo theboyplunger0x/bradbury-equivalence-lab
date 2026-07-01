@@ -2696,3 +2696,46 @@ further testing, alongside no-LLM paths.
 ### Framing
 
 LAB / experimental. Prod FUD price + WC settlement stays on studionet. Phase 10b just adds measurement fidelity.
+
+
+---
+
+## Phase 10c — Apples-to-apples: 04_v4 (no-LLM) N=20 with same instrumented runner
+
+**Setup**: identical to Phase 10b — same runner (batchRunV4.ts patched), same budget (480s), same retry guard, same per-validator DV instrumentation. Only difference: no-LLM contract (04_v4 ESPN structured JSON) vs LLM contract (05_v1 prompt_comparative).
+
+### Numbers
+
+| Metric | 04_v4 no-LLM | 05_v1 prompt_comparative |
+|---|---|---|
+| Deploy AGREE | 20/20 (100%) | 20/20 (100%) |
+| Resolve first-try clean | 13/20 (65%) | 10/20 (50%) |
+| Retry-recovered | 6/20 (30%) | 5/20 (25%) |
+| **End-to-end clean** | **19/20 (95%)** | **15/20 (75%)** |
+| Unrecovered CONSENSUS_REVERT | 1/20 (5%) | 3/20 (15%) |
+| TIMEOUT @ 480s | 0/20 | 2/20 (10%) |
+| **Minority per-validator DV runs** | **0/20 (0%)** | **5/20 (25%)** |
+| **Minority per-validator DV count** | **0** | **5** |
+| Median total latency | **60s** | 294s (~5 min) |
+| P95 total latency | **125s** (~2 min) | 570s (~10 min) |
+| Budget ceiling hit | 0/20 | 4/20 (20%) |
+
+### Findings
+
+1. **LLM comparative introduces measurable validator-level disagreement.** 04_v4 had **zero** minority DV votes across 20 runs; 05_v1 had DV votes in **5/20 (25%) of runs**. This is not shared Bradbury infra noise — it is specific to the LLM path.
+2. **CONSENSUS_REVERT is shared Bradbury infra noise** (both contracts hit it), but LLM contracts hit it 3x more often (15% vs 5% unrecovered).
+3. **LLM adds ~5x latency**: 60s median for no-LLM vs 294s for LLM (LLM inference cost).
+4. **Structured no-LLM path is production-viable** at 95% end-to-end clean with retry, median 60s, p95 2 min. Comfortably within the 0-15 min "normal resolving" SLA envelope.
+5. **LLM path is viable only as async settlement with fallback**: 75% clean, 5 min median, but 25% run-level DV noise means real disagreement risk between validators.
+
+### Product framing consequence
+
+For FUD's Bradbury canary integration:
+
+- **Primary path**: `04_v4`-style structured JSON, no LLM. Covers all price predictions (DexScreener) and sports (ESPN, football-data). 95% end-to-end clean at ~60s median is excellent even for user-visible markets.
+- **Fallback path**: `05_v1`-style `prompt_comparative`. Reserved for cases where the input source has no structured API and requires semantic interpretation. Requires monitoring for minority DV rate and admin fallback for the ~15% CONSENSUS_REVERT that stays stuck.
+
+### Framing
+
+LAB / experimental. Prod FUD price + WC settlement stays on studionet. Phase 10c gives us the apples-to-apples number we needed to design the Stage 3 shadow canary correctly.
+
