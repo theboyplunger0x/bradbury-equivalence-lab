@@ -55,6 +55,8 @@ const ESPN_EVENT_ID = "633850";
 const LOCALNET_FUND_WEI = 100n * 10n ** 18n;
 
 const POLL_INTERVAL_MS = 5_000; // per task spec: poll every 5s
+const POST_DEPLOY_DELAY_MS = 25_000;
+const RESOLVE_RETRY_DELAY_MS = 60_000;
 const DEFAULT_BUDGET_SECONDS = 300;
 
 const DECIDED_STATES = new Set([
@@ -79,6 +81,8 @@ type Verdict =
   | "OTHER"
   | "TIMEOUT"
   | "THROW"
+  | "RESOLVE_CONSENSUS_REVERT"
+  | "RESOLVE_REVERT_RETRY_CLEAN"
   | "SKIPPED";
 
 interface StageResult {
@@ -119,6 +123,9 @@ interface RunResult {
   contractAddress: string;
   deployErrorDetail: string;
   resolveErrorDetail: string;
+  resolveRetryAttempted: boolean;
+  resolveRetryOutcome: Verdict | "";
+  postDeployDelayMs: number;
 }
 
 interface BatchSummary {
@@ -171,6 +178,11 @@ const readBradburyPrivateKey = (): `0x${string}` => {
 
 const jsonSafe = (value: unknown): string =>
   JSON.stringify(value, (_k, v) => (typeof v === "bigint" ? v.toString() : v));
+
+const isConsensusContractRevertError = (message: string): boolean => {
+  const lower = message.toLowerCase();
+  return lower.includes("consensus contract") && lower.includes("reverted");
+};
 
 // ---------------------------------------------------------------------------
 // Phase 5d / 5e helpers (mirrors deployBradburyV4Worldcup.ts)
@@ -614,6 +626,9 @@ async function runOnce(
 
   // --- resolve --------------------------------------------------------------
   let resolveStage: StageResult;
+  let resolveRetryAttempted = false;
+  let resolveRetryOutcome: Verdict | "" = "";
+  let postDeployDelayMs = 0;
   const usedSoFar = Date.now() - runStart;
   const resolveBudget = Math.max(0, budgetMs - usedSoFar);
 
@@ -628,6 +643,9 @@ async function runOnce(
     resolveStage = makeSkippedStage("no time budget remaining after deploy");
   } else {
     let resolveHashStr = "";
+    postDeployDelayMs = POST_DEPLOY_DELAY_MS;
+    await sleep(postDeployDelayMs);
+    const resolveAttemptStart = Date.now();
     try {
       const resolveHash = (await (
         client as { writeContract: (a: unknown) => Promise<unknown> }
@@ -652,21 +670,90 @@ async function runOnce(
       const msg = e instanceof Error ? e.message : String(e);
       // eslint-disable-next-line no-console
       console.error(`[run ${i}] resolve threw: ${msg}`);
-      resolveStage = {
-        hash: resolveHashStr,
-        verdict: "THROW",
-        statusName: "THROW",
-        txExecutionResultName: "THROW",
-        votes: {},
-        votesArray: [],
-        validatorAddresses: [],
-        validatorHashes: [],
-        contractAddress: deployStage.contractAddress,
-        hashesIdentical: false,
-        elapsedMs: Date.now() - (runStart + usedSoFar),
-        budgetHit: false,
-        errorDetail: msg,
-      };
+      if (isConsensusContractRevertError(msg)) {
+        resolveRetryAttempted = true;
+        await sleep(RESOLVE_RETRY_DELAY_MS);
+        let retryResolveHashStr = "";
+        const retryAttemptStart = Date.now();
+        try {
+          const retryResolveHash = (await (
+            client as { writeContract: (a: unknown) => Promise<unknown> }
+          ).writeContract({
+            address: deployStage.contractAddress,
+            functionName: "resolve",
+            args: [],
+            leaderOnly: false,
+          })) as `0x${string}`;
+          retryResolveHashStr = retryResolveHash;
+          // eslint-disable-next-line no-console
+          console.log(`[run ${i}] resolveRetryHash=${retryResolveHash}`);
+
+          const { tx, elapsedMs, budgetHit } = await pollUntilDecidedOrBudget(
+            client,
+            retryResolveHash,
+            resolveBudget,
+            `run${i}_resolve_retry`,
+          );
+          const retryStage = summarizeStage(
+            retryResolveHash,
+            tx,
+            elapsedMs,
+            budgetHit,
+          );
+          if (retryStage.verdict === "AGREE_SUCCESS") {
+            resolveStage = {
+              ...retryStage,
+              verdict: "RESOLVE_REVERT_RETRY_CLEAN",
+            };
+          } else {
+            resolveStage = {
+              ...retryStage,
+              verdict: "RESOLVE_CONSENSUS_REVERT",
+              errorDetail:
+                retryStage.errorDetail ||
+                `first resolve threw: ${msg}; retry verdict=${retryStage.verdict}`,
+            };
+          }
+          resolveRetryOutcome = resolveStage.verdict;
+        } catch (retryE: unknown) {
+          const retryMsg =
+            retryE instanceof Error ? retryE.message : String(retryE);
+          // eslint-disable-next-line no-console
+          console.error(`[run ${i}] resolve retry threw: ${retryMsg}`);
+          resolveStage = {
+            hash: retryResolveHashStr,
+            verdict: "RESOLVE_CONSENSUS_REVERT",
+            statusName: "THROW",
+            txExecutionResultName: "THROW",
+            votes: {},
+            votesArray: [],
+            validatorAddresses: [],
+            validatorHashes: [],
+            contractAddress: deployStage.contractAddress,
+            hashesIdentical: false,
+            elapsedMs: Date.now() - retryAttemptStart,
+            budgetHit: false,
+            errorDetail: `first resolve threw: ${msg}; retry resolve threw: ${retryMsg}`,
+          };
+          resolveRetryOutcome = "RESOLVE_CONSENSUS_REVERT";
+        }
+      } else {
+        resolveStage = {
+          hash: resolveHashStr,
+          verdict: "THROW",
+          statusName: "THROW",
+          txExecutionResultName: "THROW",
+          votes: {},
+          votesArray: [],
+          validatorAddresses: [],
+          validatorHashes: [],
+          contractAddress: deployStage.contractAddress,
+          hashesIdentical: false,
+          elapsedMs: Date.now() - resolveAttemptStart,
+          budgetHit: false,
+          errorDetail: msg,
+        };
+      }
     }
   }
 
@@ -694,6 +781,9 @@ async function runOnce(
     contractAddress: deployStage.contractAddress,
     deployErrorDetail: deployStage.errorDetail,
     resolveErrorDetail: resolveStage.errorDetail,
+    resolveRetryAttempted,
+    resolveRetryOutcome,
+    postDeployDelayMs,
   };
 }
 
@@ -709,6 +799,8 @@ const EMPTY_VERDICT_COUNTS: Record<Verdict, number> = {
   OTHER: 0,
   TIMEOUT: 0,
   THROW: 0,
+  RESOLVE_CONSENSUS_REVERT: 0,
+  RESOLVE_REVERT_RETRY_CLEAN: 0,
   SKIPPED: 0,
 };
 
@@ -847,6 +939,9 @@ async function main(): Promise<void> {
         contractAddress: "",
         deployErrorDetail: msg,
         resolveErrorDetail: "client init failed",
+        resolveRetryAttempted: false,
+        resolveRetryOutcome: "",
+        postDeployDelayMs: 0,
       };
       runs.push(failed);
       // eslint-disable-next-line no-console

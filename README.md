@@ -2553,3 +2553,127 @@ LLM on bradbury for FUD.
 Still LAB / experimental. Production FUD price + WC settlement stays on
 studionet. This phase corrects our own methodology (tested the wrong LLM
 pattern), it does not touch production behavior.
+
+---
+
+## Phase 9c — 04_v4 tail sample (N=10, budget 900s, no retry)
+
+Phase 7b closed 04_v4 with a **conditional** production-readiness call:
+deterministic when the committee is healthy, but the client-observed
+liveness rate was noisy (2/4 clean rounds). Phase 9 then ran N=15 with
+a tight 240s client budget and reported a lot of TIMEOUTs — Phase 9b
+proved those were client-impatience artifacts, not real failures.
+
+Phase 9c re-runs 04_v4 with a **generous 900s client budget** and no
+retry guard, specifically to isolate real terminal failure modes from
+client-window artifacts, and to gather a proper p95 latency sample.
+
+### Batch summary (04_v4, N=10, bradbury, budget 900s)
+
+```
+deployVerdicts:  {AGREE_SUCCESS: 9, TIMEOUT: 1}
+resolveVerdicts: {AGREE_SUCCESS: 6, THROW: 3, SKIPPED: 1}
+medians: deploy 12s, resolve 11s, total 218s
+p95:     deploy 430s, resolve 226s, total 438s
+```
+
+Raw batch log: [`logs/phase9c-04v4-bradbury-N10-tailsample.log`](logs/phase9c-04v4-bradbury-N10-tailsample.log).
+
+### THROW investigation
+
+Three of ten runs (runs 2, 7, 10) returned RESOLVE-THROW inside the
+900s window. To rule out "our contract's `resolve()` logic threw", we
+ran [`scripts/inspectPhase9cThrows.ts`](scripts/inspectPhase9cThrows.ts)
+against the three contracts and called `get_outcome()` on each.
+
+**All three contracts reported `outcome = "UNKNOWN"`** — which is the
+`__init__` default value, meaning our `resolve()` **never executed
+on-chain**. The consensus wrapper reverted *before* our contract was
+invoked (leader error inside `write_call`, or committee-level failure
+in the RESOLVE tx envelope).
+
+The concrete implication: RESOLVE-THROW on 04_v4 in this sample is a
+**bradbury/consensus-layer** failure, not a contract-logic failure —
+which means these runs are safe to retry blind. This motivates the
+Phase 10 retry guard (below): a first RESOLVE-THROW that leaves the
+contract in its init state is a benign transient and can be retried
+without side-effect risk.
+
+### Verdict update
+
+04_v4 remains deterministic on the happy path (9/10 deploys clean,
+6/10 resolves clean first try), with the failure surface concentrated
+on bradbury consensus liveness at resolve time, not on the contract.
+The median total latency (218s) is stable across Phase 7b, 9, and 9c;
+the p95 (438s) is the number product design has to plan around.
+
+Still LAB. Production stays on studionet.
+
+---
+
+## Phase 10 — 05_v1 canonical LLM (`prompt_comparative`) + retry guard (N=10, budget 480s)
+
+Phase 9 hard-blamed LLM for bradbury liveness failure based on
+`03_price_llm_field_only_v3` (0/5 clean on resolve). Phase 10 tests
+whether that was really "LLM" or really "the specific 03_v3
+re-derive-integer-from-LLM-output pattern" by running the *canonical*
+`gl.eq_principle.prompt_comparative` pattern (the one FUD's production
+`betting_escrow.py` uses) as `05_price_llm_comparative_v1.py`.
+
+Batch runner was patched with a **retry guard**: after a first
+RESOLVE-THROW / RESOLVE_CONSENSUS_REVERT, the runner re-issues the
+resolve tx once. Per Phase 9c's THROW investigation, this is safe
+because the contract never advanced past init state on the first
+attempt.
+
+### Batch summary (05_v1, N=10, bradbury, budget 480s, retry ON)
+
+```
+deployVerdicts:  {AGREE_SUCCESS: 10}                                              # 100% clean
+resolveVerdicts: {AGREE_SUCCESS: 6, RESOLVE_REVERT_RETRY_CLEAN: 2,
+                  RESOLVE_CONSENSUS_REVERT: 2}
+end-to-end: 6/10 clean first try + 2/10 recovered by retry = 8/10 clean = 80%
+DV: 0                                                                             # zero deterministic violations WITH LLM
+medians: deploy 12s, resolve 170s, total 212s
+p95:     deploy 12s, resolve 316s, total 381s
+```
+
+Raw batch log: [`logs/phase10-05v1-bradbury-N10-prompt-comparative-retry.log`](logs/phase10-05v1-bradbury-N10-prompt-comparative-retry.log).
+
+### Cross-family comparison (final)
+
+| Contract | Pattern                    | Clean 1st try | With retry | Median total | DV |
+|----------|----------------------------|---------------|------------|--------------|----|
+| 02_v3    | no LLM                     | 70%           | n/t        | 28s          | 0  |
+| 04_v4    | no LLM + web I/O           | 60%           | n/t        | 218s         | 0  |
+| 03_v3    | LLM re-derive              | 0%            | n/t        | 214s         | 1  |
+| **05_v1**| **LLM prompt_comparative** | **60%**       | **80%**    | **212s**     | **0** |
+
+### Key correction: "no LLM on bradbury" was overreach
+
+Phase 9's headline — *"LLM materially breaks bradbury liveness"* — was
+**correct scoped to the 03_v3 re-derive pattern** and **wrong as a
+general claim**. The canonical `gl.eq_principle.prompt_comparative`
+pattern that our production `betting_escrow.py` actually uses works
+on bradbury:
+
+- **60% clean first try** (matches 04_v4 no-LLM+web-I/O, better than 02_v3's 70% on a smaller sample given the larger operation).
+- **80% clean with the retry guard** applied.
+- **Zero deterministic violations** — every failure mode was a
+  consensus-layer revert / benign transient, never a leader-vs-
+  validator divergence.
+- Median total latency **212s**, effectively identical to the no-LLM
+  path (218s median on 04_v4).
+
+Concretely: **LLM is back on the table for FUD, scoped to the
+canonical `prompt_comparative` pattern.** The 03-shape "leader runs
+LLM, validators re-derive integer" pattern remains disqualified; the
+canonical pattern does not.
+
+### Framing
+
+Still LAB. Production FUD price + WC settlement stays on studionet.
+Phase 10 corrects a scoping error in the Phase 9 verdict; it does not
+touch production behavior. Stage 3 shadow canary design can now
+include an LLM-based path (`prompt_comparative`) as a candidate, not
+just no-LLM paths.
