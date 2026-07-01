@@ -104,6 +104,7 @@ interface RunResult {
   deployVerdict: Verdict;
   deployVotes: Record<string, number>;
   deployVotesArray: string[];
+  deployMinorityDvCount: number;
   deployValidatorAddresses: string[];
   deployValidatorHashes: string[];
   deployElapsedMs: number;
@@ -111,6 +112,7 @@ interface RunResult {
   resolveVerdict: Verdict;
   resolveVotes: Record<string, number>;
   resolveVotesArray: string[];
+  resolveMinorityDvCount: number;
   resolveValidatorAddresses: string[];
   resolveValidatorHashes: string[];
   resolveElapsedMs: number;
@@ -130,6 +132,10 @@ interface BatchSummary {
   budgetSeconds: number;
   deployVerdicts: Record<Verdict, number>;
   resolveVerdicts: Record<Verdict, number>;
+  deployMinorityDvCount: number;
+  resolveMinorityDvCount: number;
+  deployAnyMinorityDvRuns: number;
+  resolveAnyMinorityDvRuns: number;
   deployElapsedMedianMs: number;
   deployElapsedP95Ms: number;
   resolveElapsedMedianMs: number;
@@ -174,6 +180,9 @@ const readBradburyPrivateKey = (): `0x${string}` => {
 
 const jsonSafe = (value: unknown): string =>
   JSON.stringify(value, (_k, v) => (typeof v === "bigint" ? v.toString() : v));
+
+const countMinorityDvVotes = (votesArray: readonly string[]): number =>
+  votesArray.filter((vote) => vote === "DETERMINISTIC_VIOLATION").length;
 
 const isConsensusContractRevertError = (message: string): boolean => {
   const lower = message.toLowerCase();
@@ -625,6 +634,7 @@ async function runOnce(
   let resolveRetryAttempted = false;
   let resolveRetryOutcome: Verdict | "" = "";
   let postDeployDelayMs = 0;
+  const resolveVotesArrays: string[][] = [];
   const usedSoFar = Date.now() - runStart;
   const resolveBudget = Math.max(0, budgetMs - usedSoFar);
 
@@ -662,6 +672,7 @@ async function runOnce(
         `run${i}_resolve`,
       );
       resolveStage = summarizeStage(resolveHash, tx, elapsedMs, budgetHit);
+      resolveVotesArrays.push(resolveStage.votesArray);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       // eslint-disable-next-line no-console
@@ -696,6 +707,7 @@ async function runOnce(
             elapsedMs,
             budgetHit,
           );
+          resolveVotesArrays.push(retryStage.votesArray);
           if (retryStage.verdict === "AGREE_SUCCESS") {
             resolveStage = {
               ...retryStage,
@@ -754,6 +766,11 @@ async function runOnce(
   }
 
   const totalMs = Date.now() - runStart;
+  const deployMinorityDvCount = countMinorityDvVotes(deployStage.votesArray);
+  const resolveMinorityDvCount = resolveVotesArrays.reduce(
+    (count, votesArray) => count + countMinorityDvVotes(votesArray),
+    0,
+  );
 
   return {
     i,
@@ -762,6 +779,7 @@ async function runOnce(
     deployVerdict: deployStage.verdict,
     deployVotes: deployStage.votes,
     deployVotesArray: deployStage.votesArray,
+    deployMinorityDvCount,
     deployValidatorAddresses: deployStage.validatorAddresses,
     deployValidatorHashes: deployStage.validatorHashes,
     deployElapsedMs: deployStage.elapsedMs,
@@ -769,6 +787,7 @@ async function runOnce(
     resolveVerdict: resolveStage.verdict,
     resolveVotes: resolveStage.votes,
     resolveVotesArray: resolveStage.votesArray,
+    resolveMinorityDvCount,
     resolveValidatorAddresses: resolveStage.validatorAddresses,
     resolveValidatorHashes: resolveStage.validatorHashes,
     resolveElapsedMs: resolveStage.elapsedMs,
@@ -830,9 +849,17 @@ function summarize(
   const resolveMs: number[] = [];
   const totalMs: number[] = [];
   let budgetHitCount = 0;
+  let deployMinorityDvCount = 0;
+  let resolveMinorityDvCount = 0;
+  let deployAnyMinorityDvRuns = 0;
+  let resolveAnyMinorityDvRuns = 0;
   for (const r of runs) {
     deployVerdicts[r.deployVerdict] += 1;
     resolveVerdicts[r.resolveVerdict] += 1;
+    deployMinorityDvCount += r.deployMinorityDvCount;
+    resolveMinorityDvCount += r.resolveMinorityDvCount;
+    if (r.deployMinorityDvCount > 0) deployAnyMinorityDvRuns += 1;
+    if (r.resolveMinorityDvCount > 0) resolveAnyMinorityDvRuns += 1;
     deployMs.push(r.deployElapsedMs);
     resolveMs.push(r.resolveElapsedMs);
     totalMs.push(r.totalMs);
@@ -844,6 +871,10 @@ function summarize(
     budgetSeconds,
     deployVerdicts,
     resolveVerdicts,
+    deployMinorityDvCount,
+    resolveMinorityDvCount,
+    deployAnyMinorityDvRuns,
+    resolveAnyMinorityDvRuns,
     deployElapsedMedianMs: Math.round(median(deployMs)),
     deployElapsedP95Ms: Math.round(p95(deployMs)),
     resolveElapsedMedianMs: Math.round(median(resolveMs)),
@@ -920,6 +951,7 @@ async function main(): Promise<void> {
         deployVerdict: "THROW",
         deployVotes: {},
         deployVotesArray: [],
+        deployMinorityDvCount: 0,
         deployValidatorAddresses: [],
         deployValidatorHashes: [],
         deployElapsedMs: 0,
@@ -927,6 +959,7 @@ async function main(): Promise<void> {
         resolveVerdict: "SKIPPED",
         resolveVotes: {},
         resolveVotesArray: [],
+        resolveMinorityDvCount: 0,
         resolveValidatorAddresses: [],
         resolveValidatorHashes: [],
         resolveElapsedMs: 0,

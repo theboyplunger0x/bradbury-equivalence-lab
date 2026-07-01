@@ -2653,3 +2653,46 @@ Phase 10 corrects a scoping error in the Phase 9 verdict; it does not
 touch production behavior. Stage 3 shadow canary design can now
 consider an LLM-based path (`prompt_comparative`) as a candidate for
 further testing, alongside no-LLM paths.
+
+
+---
+
+## Phase 10b — 05_v1 measurement run (N=20, instrumented per-validator DV)
+
+**Setup**: same 05_v1 contract as Phase 10, same retry guard, same budget (480s per run). Runner now emits per-validator DV metrics separately from top-level verdict (`deployMinorityDvCount`, `resolveMinorityDvCount`, `deployAnyMinorityDvRuns`, `resolveAnyMinorityDvRuns`) so we can distinguish top-level DV verdicts from minority validator DV votes.
+
+### Numbers
+
+- Deploy: 20/20 AGREE_SUCCESS (100%)
+- Resolve first-try AGREE_SUCCESS: 10/20 (50%)
+- Resolve recovered via retry: 5/20 (25%) → **end-to-end clean: 15/20 (75%)**
+- Resolve unrecovered consensus-contract revert: 3/20 (15%)
+- Resolve TIMEOUT @ 480s budget: 2/20 (10%)
+- Top-level DV verdicts: **0/20**
+- Runs with at least one per-validator DV vote at resolve: **5/20 (25%)**
+- Deploy-stage minority DV: 0/20
+
+### Latencies
+
+- Deploy: median 12s, p95 12s
+- Resolve: median 252s (~4 min), p95 468s (~8 min)
+- Total: median 294s (~5 min), p95 570s (~10 min)
+- Runs hitting 480s budget ceiling: 4/20 (20%)
+
+### Interpretation (honest, no overreach)
+
+- **End-to-end clean rate stabilizes ~75%** at N=20 with retry guard. Consistent with Phase 10 N=10 (80%).
+- **Retry guard adds ~25pp** over first-try (50% → 75%).
+- **Minority per-validator DV votes appear in 25% of runs** but never escalate to top-level DV verdict. This is measured but not yet interpretable without an apples-to-apples no-LLM comparator.
+- **Consensus-contract revert persists at 15%** even after retry. Same failure signature as Phase 9c THROWs (targets contract `0x0112Bf6e...`, tx never executes on-chain per state inspection). This is shared Bradbury infra noise, not contract-specific.
+- **TIMEOUT reappeared at 10%** — some resolves don't finalize in 480s. Would need longer budget to know if they'd eventually finalize.
+
+### What this does and does not support
+
+**Supports**: `prompt_comparative` produces a defensible async settlement pattern at ~75% clean with retry, matching the SLA envelope (0-15 min normal / 15-30 min soft warning / 30+ min admin fallback / 60+ min manual).
+
+**Does NOT support**: any claim about LLM being safer or riskier than no-LLM. Needs N=20 04_v4 with the same instrumented runner and retry guard for apples-to-apples comparison.
+
+### Framing
+
+LAB / experimental. Prod FUD price + WC settlement stays on studionet. Phase 10b just adds measurement fidelity.

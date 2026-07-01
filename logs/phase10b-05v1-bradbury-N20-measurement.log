@@ -1,0 +1,1055 @@
+[batchRunV05] network=bradbury N=20 budgetSeconds=480 startedAt=2026-07-01T16:13:36.740Z
+
+===== RUN 1/20 (bradbury) =====
+[run 1] wallet=0x186d2dabBE79810A6F3cBD8C09033E96C767c121
+[run 1] deployHash=0x22c6a8a5534ef489c7a04b1f26bbf98cad04d116b330c479440cbe8ed09a5a6f
+[run1_deploy] poll status=COMMITTING exec=NOT_VOTED elapsed=6313ms
+[run1_deploy] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=12601ms
+[run 1] resolve threw: Transaction reverted: EVM tx 0x8a2a502b1f9880d2e91b833b4bc630d8631ae32788d4d8089ae0c2dcc76e58a9 to consensus contract 0x0112Bf6e83497965A5fdD6Dad1E447a6E004271D was reverted.
+[run 1] resolveRetryHash=0x7adb2ba1a005268dedc943d5f43d6e78f46895513f25e351c1f715fcbfb89477
+[run1_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=6064ms
+[run1_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=12131ms
+[run1_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=17894ms
+[run1_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=23554ms
+[run1_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=29159ms
+[run1_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=34804ms
+[run1_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=40418ms
+[run1_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=46030ms
+[run1_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=51648ms
+[run1_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=57761ms
+[run1_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=63376ms
+[run1_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=68747ms
+[run1_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=74320ms
+[run1_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=79967ms
+[run1_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=86095ms
+[run1_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=91713ms
+[run1_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=97349ms
+[run1_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=102915ms
+[run1_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=109048ms
+[run1_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=114422ms
+[run1_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=120123ms
+[run1_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=125761ms
+[run1_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=131319ms
+[run1_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=136694ms
+[run1_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=142336ms
+[run1_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=147962ms
+[run1_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=153338ms
+[run1_resolve_retry] poll status=REVEALING exec=FINISHED_WITH_RETURN elapsed=158912ms
+[run1_resolve_retry] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=164471ms
+RUN::{"i":1,"network":"bradbury","deployHash":"0x22c6a8a5534ef489c7a04b1f26bbf98cad04d116b330c479440cbe8ed09a5a6f","deployVerdict":"AGREE_SUCCESS","deployVotes":{"AGREE":5},"deployVotesArray":["AGREE","AGREE","AGREE","AGREE","AGREE"],"deployMinorityDvCount":0,"deployValidatorAddresses":[],"deployValidatorHashes":["0x66bb751ecff4320627d5624d1446ecc94669aef2d062b9d503e7febd25faaa00","0x66bb751ecff4320627d5624d1446ecc94669aef2d062b9d503e7febd25faaa00","0x66bb751ecff4320627d5624d1446ecc94669aef2d062b9d503e7febd25faaa00","0x66bb751ecff4320627d5624d1446ecc94669aef2d062b9d503e7febd25faaa00","0x66bb751ecff4320627d5624d1446ecc94669aef2d062b9d503e7febd25faaa00"],"deployElapsedMs":12601,"resolveHash":"0x7adb2ba1a005268dedc943d5f43d6e78f46895513f25e351c1f715fcbfb89477","resolveVerdict":"RESOLVE_REVERT_RETRY_CLEAN","resolveVotes":{"AGREE":4,"TIMEOUT":1},"resolveVotesArray":["AGREE","AGREE","AGREE","AGREE","TIMEOUT"],"resolveMinorityDvCount":0,"resolveValidatorAddresses":[],"resolveValidatorHashes":["0x02d1e12df9b42f7cd4b169326d6cba545c367be0999f2614a2d8f86e12495e01","0x02d1e12df9b42f7cd4b169326d6cba545c367be0999f2614a2d8f86e12495e01","0x02d1e12df9b42f7cd4b169326d6cba545c367be0999f2614a2d8f86e12495e01","0x02d1e12df9b42f7cd4b169326d6cba545c367be0999f2614a2d8f86e12495e01","0x9fc8d2d92c2ea25ae2ac3d9b20370cb9cb1e53d073b5c1a20b03621ca750f8df"],"resolveElapsedMs":164471,"totalMs":269278,"budgetHit":false,"contractAddress":"0xA6E8e50605FE6C4DA4acF0AE66744Ea3B9A189f7","deployErrorDetail":"","resolveErrorDetail":"","resolveRetryAttempted":true,"resolveRetryOutcome":"RESOLVE_REVERT_RETRY_CLEAN","postDeployDelayMs":25000}
+
+===== RUN 2/20 (bradbury) =====
+[run 2] wallet=0x186d2dabBE79810A6F3cBD8C09033E96C767c121
+[run 2] deployHash=0x348dcfa56faf29d23d80dee449087c6b94b667eec0aef8c591ba592aa47d5712
+[run2_deploy] poll status=14 exec=NOT_VOTED elapsed=5790ms
+[run2_deploy] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=11553ms
+[run 2] resolveHash=0x19419a088a6bf353393a1a09ee8e7807f6d1165ca64d93105b5c849e7efe0aff
+[run2_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=5371ms
+[run2_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=11468ms
+[run2_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=19031ms
+[run2_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=28331ms
+[run2_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=37879ms
+[run2_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=44384ms
+[run2_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=64146ms
+[run2_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=69569ms
+[run2_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=75171ms
+[run2_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=80859ms
+[run2_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=88233ms
+[run2_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=93607ms
+[run2_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=100110ms
+[run2_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=105780ms
+[run2_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=111934ms
+[run2_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=118098ms
+[run2_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=123813ms
+[run2_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=131251ms
+[run2_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=136820ms
+[run2_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=142793ms
+[run2_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=149460ms
+[run2_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=156287ms
+[run2_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=162244ms
+[run2_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=168297ms
+[run2_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=174370ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=179744ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=185136ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=191797ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=197866ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=203453ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=209086ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=214461ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=219936ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=225497ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=230989ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=236567ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=241968ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=247345ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=252703ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=258256ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=263899ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=269474ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=275086ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=280449ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=286524ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=292085ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=297655ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=303090ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=308663ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=314039ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=319420ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=324828ms
+[run2_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=330386ms
+[run2_resolve] poll status=REVEALING exec=FINISHED_WITH_RETURN elapsed=335825ms
+[run2_resolve] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=341329ms
+RUN::{"i":2,"network":"bradbury","deployHash":"0x348dcfa56faf29d23d80dee449087c6b94b667eec0aef8c591ba592aa47d5712","deployVerdict":"AGREE_SUCCESS","deployVotes":{"AGREE":5},"deployVotesArray":["AGREE","AGREE","AGREE","AGREE","AGREE"],"deployMinorityDvCount":0,"deployValidatorAddresses":[],"deployValidatorHashes":["0x33d995285c964b39cf4758353c94cf892ed52bb30524f449a4ea54f19c26ca9f","0x33d995285c964b39cf4758353c94cf892ed52bb30524f449a4ea54f19c26ca9f","0x33d995285c964b39cf4758353c94cf892ed52bb30524f449a4ea54f19c26ca9f","0x33d995285c964b39cf4758353c94cf892ed52bb30524f449a4ea54f19c26ca9f","0x33d995285c964b39cf4758353c94cf892ed52bb30524f449a4ea54f19c26ca9f"],"deployElapsedMs":11554,"resolveHash":"0x19419a088a6bf353393a1a09ee8e7807f6d1165ca64d93105b5c849e7efe0aff","resolveVerdict":"AGREE_SUCCESS","resolveVotes":{"AGREE":4,"DETERMINISTIC_VIOLATION":1},"resolveVotesArray":["AGREE","AGREE","AGREE","DETERMINISTIC_VIOLATION","AGREE"],"resolveMinorityDvCount":1,"resolveValidatorAddresses":[],"resolveValidatorHashes":["0xc62d402c77bdba634cf52922d6698f1493889605403ebb3b348c0738167c54cb","0xc62d402c77bdba634cf52922d6698f1493889605403ebb3b348c0738167c54cb","0xc62d402c77bdba634cf52922d6698f1493889605403ebb3b348c0738167c54cb","0xdcd0066ed7f76936f6586221edb3b542a9289be6151d0f12aa158fa0e9055786","0xc62d402c77bdba634cf52922d6698f1493889605403ebb3b348c0738167c54cb"],"resolveElapsedMs":341329,"totalMs":382220,"budgetHit":false,"contractAddress":"0x2397D66F327a59043A0502196530dD4d5c1287c1","deployErrorDetail":"","resolveErrorDetail":"","resolveRetryAttempted":false,"resolveRetryOutcome":"","postDeployDelayMs":25000}
+
+===== RUN 3/20 (bradbury) =====
+[run 3] wallet=0x186d2dabBE79810A6F3cBD8C09033E96C767c121
+[run 3] deployHash=0x54c674f54227d366ab887dc23471113719abea99d9f8f04f962bbc7be362ba15
+[run3_deploy] poll status=14 exec=NOT_VOTED elapsed=5613ms
+[run3_deploy] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=11414ms
+[run 3] resolveHash=0xd559e45b82a114b0db00d448e3de8dd050ecaf4914ba5faee21da3b6236e92ee
+[run3_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=5585ms
+[run3_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=11164ms
+[run3_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=16730ms
+[run3_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=22305ms
+[run3_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=27963ms
+[run3_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=34055ms
+[run3_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=40144ms
+[run3_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=45592ms
+[run3_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=51615ms
+[run3_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=57189ms
+[run3_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=62843ms
+[run3_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=68401ms
+[run3_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=74014ms
+[run3_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=79685ms
+[run3_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=85163ms
+[run3_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=90758ms
+[run3_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=96330ms
+[run3_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=102393ms
+[run3_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=107951ms
+[run3_resolve] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=113314ms
+RUN::{"i":3,"network":"bradbury","deployHash":"0x54c674f54227d366ab887dc23471113719abea99d9f8f04f962bbc7be362ba15","deployVerdict":"AGREE_SUCCESS","deployVotes":{"AGREE":5},"deployVotesArray":["AGREE","AGREE","AGREE","AGREE","AGREE"],"deployMinorityDvCount":0,"deployValidatorAddresses":[],"deployValidatorHashes":["0x87bf4488d00f2c7e9708e4c9cb7326ca9bdd7ef56b4f4f8d4eaf546895ed742d","0x87bf4488d00f2c7e9708e4c9cb7326ca9bdd7ef56b4f4f8d4eaf546895ed742d","0x87bf4488d00f2c7e9708e4c9cb7326ca9bdd7ef56b4f4f8d4eaf546895ed742d","0x87bf4488d00f2c7e9708e4c9cb7326ca9bdd7ef56b4f4f8d4eaf546895ed742d","0x87bf4488d00f2c7e9708e4c9cb7326ca9bdd7ef56b4f4f8d4eaf546895ed742d"],"deployElapsedMs":11414,"resolveHash":"0xd559e45b82a114b0db00d448e3de8dd050ecaf4914ba5faee21da3b6236e92ee","resolveVerdict":"AGREE_SUCCESS","resolveVotes":{"AGREE":4,"DETERMINISTIC_VIOLATION":1},"resolveVotesArray":["AGREE","AGREE","AGREE","DETERMINISTIC_VIOLATION","AGREE"],"resolveMinorityDvCount":1,"resolveValidatorAddresses":[],"resolveValidatorHashes":["0xaaff9c0d88200bb453afb2a037602fa632fe0b0cbd9b16c9fc904011ad97ce39","0xaaff9c0d88200bb453afb2a037602fa632fe0b0cbd9b16c9fc904011ad97ce39","0xaaff9c0d88200bb453afb2a037602fa632fe0b0cbd9b16c9fc904011ad97ce39","0x325880c3a05d174b981182222e0819e9f3622c22930b999bc26b00bf1c1bbb70","0xaaff9c0d88200bb453afb2a037602fa632fe0b0cbd9b16c9fc904011ad97ce39"],"resolveElapsedMs":113314,"totalMs":154375,"budgetHit":false,"contractAddress":"0x4f44405Aaf5d97b2D9E3A4D254b98FaE6282A830","deployErrorDetail":"","resolveErrorDetail":"","resolveRetryAttempted":false,"resolveRetryOutcome":"","postDeployDelayMs":25000}
+
+===== RUN 4/20 (bradbury) =====
+[run 4] wallet=0x186d2dabBE79810A6F3cBD8C09033E96C767c121
+[run 4] deployHash=0xb6a26f5d390442fc9cd2fd081d19c508170b330f8eb8cf9db47056e489c656a1
+[run4_deploy] poll status=14 exec=NOT_VOTED elapsed=5645ms
+[run4_deploy] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=11864ms
+[run 4] resolve threw: Transaction reverted: EVM tx 0x650e325ab32c3b8c1f549fb5d4dd28efce726cc6e2300491355918dbc308d745 to consensus contract 0x0112Bf6e83497965A5fdD6Dad1E447a6E004271D was reverted.
+[run 4] resolveRetryHash=0xe234d0141a03c1c6653684295ec025ef5b8f1a55639a651847d59a66094dc105
+[run4_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=6042ms
+[run4_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=11659ms
+[run4_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=17734ms
+[run4_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=23297ms
+[run4_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=28915ms
+[run4_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=34549ms
+[run4_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=40613ms
+[run4_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=46263ms
+[run4_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=52388ms
+[run4_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=58051ms
+[run4_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=64170ms
+[run4_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=70232ms
+[run4_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=75880ms
+[run4_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=81497ms
+[run4_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=87146ms
+[run4_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=92760ms
+[run4_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=98379ms
+[run4_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=103998ms
+[run4_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=109639ms
+[run4_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=115281ms
+[run4_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=120899ms
+[run4_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=126520ms
+[run4_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=132142ms
+[run4_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=137791ms
+[run4_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=143434ms
+[run4_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=149058ms
+[run4_resolve_retry] poll status=LEADER_TIMEOUT exec=FINISHED_WITH_RETURN elapsed=154685ms
+[run4_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=160304ms
+[run4_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=165960ms
+[run4_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=171723ms
+[run4_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=177340ms
+[run4_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=182955ms
+[run4_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=188596ms
+[run4_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=194217ms
+[run4_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=199870ms
+[run4_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=205486ms
+[run4_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=211104ms
+[run4_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=216753ms
+[run4_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=222382ms
+[run4_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=228027ms
+[run4_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=233612ms
+[run4_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=239255ms
+[run4_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=245012ms
+[run4_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=250642ms
+[run4_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=256262ms
+[run4_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=261903ms
+[run4_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=267517ms
+[run4_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=273141ms
+[run4_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=278763ms
+[run4_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=284373ms
+[run4_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=290015ms
+[run4_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=295673ms
+[run4_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=301324ms
+[run4_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=306678ms
+[run4_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=312295ms
+[run4_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=317920ms
+[run4_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=323557ms
+[run4_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=329248ms
+[run4_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=334895ms
+[run4_resolve_retry] poll status=REVEALING exec=FINISHED_WITH_RETURN elapsed=340269ms
+[run4_resolve_retry] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=345889ms
+RUN::{"i":4,"network":"bradbury","deployHash":"0xb6a26f5d390442fc9cd2fd081d19c508170b330f8eb8cf9db47056e489c656a1","deployVerdict":"AGREE_SUCCESS","deployVotes":{"AGREE":5},"deployVotesArray":["AGREE","AGREE","AGREE","AGREE","AGREE"],"deployMinorityDvCount":0,"deployValidatorAddresses":[],"deployValidatorHashes":["0xb2a14093adc8ae428ed9676b61d518b61f3f0e1f441e106bd2db7d7ba21333e5","0xb2a14093adc8ae428ed9676b61d518b61f3f0e1f441e106bd2db7d7ba21333e5","0xb2a14093adc8ae428ed9676b61d518b61f3f0e1f441e106bd2db7d7ba21333e5","0xb2a14093adc8ae428ed9676b61d518b61f3f0e1f441e106bd2db7d7ba21333e5","0xb2a14093adc8ae428ed9676b61d518b61f3f0e1f441e106bd2db7d7ba21333e5"],"deployElapsedMs":11865,"resolveHash":"0xe234d0141a03c1c6653684295ec025ef5b8f1a55639a651847d59a66094dc105","resolveVerdict":"RESOLVE_REVERT_RETRY_CLEAN","resolveVotes":{"AGREE":4,"TIMEOUT":1},"resolveVotesArray":["AGREE","TIMEOUT","AGREE","AGREE","AGREE"],"resolveMinorityDvCount":0,"resolveValidatorAddresses":[],"resolveValidatorHashes":["0xd77144e4d82e82697c551d20ef58c441eb81ba500ef2b714909246104014faf7","0x9fc8d2d92c2ea25ae2ac3d9b20370cb9cb1e53d073b5c1a20b03621ca750f8df","0xd77144e4d82e82697c551d20ef58c441eb81ba500ef2b714909246104014faf7","0xd77144e4d82e82697c551d20ef58c441eb81ba500ef2b714909246104014faf7","0xd77144e4d82e82697c551d20ef58c441eb81ba500ef2b714909246104014faf7"],"resolveElapsedMs":345889,"totalMs":449919,"budgetHit":false,"contractAddress":"0x2b2e5176dB911bD90cFB5cEc04Ff528547d859e1","deployErrorDetail":"","resolveErrorDetail":"","resolveRetryAttempted":true,"resolveRetryOutcome":"RESOLVE_REVERT_RETRY_CLEAN","postDeployDelayMs":25000}
+
+===== RUN 5/20 (bradbury) =====
+[run 5] wallet=0x186d2dabBE79810A6F3cBD8C09033E96C767c121
+[run 5] deployHash=0x32e555a07bf66f4effe73b1a1c9c66b7cd50e8e77079ff8f78af4683ac70bb91
+[run5_deploy] poll status=14 exec=NOT_VOTED elapsed=5794ms
+[run5_deploy] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=11606ms
+[run 5] resolveHash=0xf460c2abafbfe2b2b6a4c776ee24f28cdcc4711e88a6918cf9f66af8281de7c8
+[run5_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=5639ms
+[run5_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=11001ms
+[run5_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=16641ms
+[run5_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=22285ms
+[run5_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=27931ms
+[run5_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=33546ms
+[run5_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=39174ms
+[run5_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=44564ms
+[run5_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=50205ms
+[run5_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=55561ms
+[run5_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=61452ms
+[run5_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=67103ms
+[run5_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=72721ms
+[run5_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=78366ms
+[run5_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=84016ms
+[run5_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=90136ms
+[run5_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=95764ms
+[run5_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=101407ms
+[run5_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=107047ms
+[run5_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=112663ms
+[run5_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=118784ms
+[run5_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=124410ms
+[run5_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=130056ms
+[run5_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=135810ms
+[run5_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=141431ms
+[run5_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=147073ms
+[run5_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=152725ms
+[run5_resolve] poll status=REVEALING exec=FINISHED_WITH_RETURN elapsed=158401ms
+[run5_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=164037ms
+[run5_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=169687ms
+[run5_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=175324ms
+[run5_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=180957ms
+[run5_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=186596ms
+[run5_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=192290ms
+[run5_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=197914ms
+[run5_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=203497ms
+[run5_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=209174ms
+[run5_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=214780ms
+[run5_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=220539ms
+[run5_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=226158ms
+[run5_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=231808ms
+[run5_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=237461ms
+[run5_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=242961ms
+[run5_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=248581ms
+[run5_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=254197ms
+[run5_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=259839ms
+[run5_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=265510ms
+[run5_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=271173ms
+[run5_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=276817ms
+[run5_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=282455ms
+[run5_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=288071ms
+[run5_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=293753ms
+[run5_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=299402ms
+[run5_resolve] poll status=14 exec=FINISHED_WITH_RETURN elapsed=305017ms
+[run5_resolve] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=310635ms
+RUN::{"i":5,"network":"bradbury","deployHash":"0x32e555a07bf66f4effe73b1a1c9c66b7cd50e8e77079ff8f78af4683ac70bb91","deployVerdict":"AGREE_SUCCESS","deployVotes":{"AGREE":5},"deployVotesArray":["AGREE","AGREE","AGREE","AGREE","AGREE"],"deployMinorityDvCount":0,"deployValidatorAddresses":[],"deployValidatorHashes":["0x85056e2bdd34030a01e96e20aa2d618944c35186194ae570ed2f3e9719be2fea","0x85056e2bdd34030a01e96e20aa2d618944c35186194ae570ed2f3e9719be2fea","0x85056e2bdd34030a01e96e20aa2d618944c35186194ae570ed2f3e9719be2fea","0x85056e2bdd34030a01e96e20aa2d618944c35186194ae570ed2f3e9719be2fea","0x85056e2bdd34030a01e96e20aa2d618944c35186194ae570ed2f3e9719be2fea"],"deployElapsedMs":11606,"resolveHash":"0xf460c2abafbfe2b2b6a4c776ee24f28cdcc4711e88a6918cf9f66af8281de7c8","resolveVerdict":"AGREE_SUCCESS","resolveVotes":{"AGREE":4,"TIMEOUT":1},"resolveVotesArray":["AGREE","AGREE","AGREE","TIMEOUT","AGREE"],"resolveMinorityDvCount":0,"resolveValidatorAddresses":[],"resolveValidatorHashes":["0xf9cbfe2176839c750c7de7b1eb39ed626d7d138da2f1b1d8e66e6000efde4f69","0xf9cbfe2176839c750c7de7b1eb39ed626d7d138da2f1b1d8e66e6000efde4f69","0xf9cbfe2176839c750c7de7b1eb39ed626d7d138da2f1b1d8e66e6000efde4f69","0x9fc8d2d92c2ea25ae2ac3d9b20370cb9cb1e53d073b5c1a20b03621ca750f8df","0xf9cbfe2176839c750c7de7b1eb39ed626d7d138da2f1b1d8e66e6000efde4f69"],"resolveElapsedMs":310635,"totalMs":351346,"budgetHit":false,"contractAddress":"0x17d3e7F27F4E1B3fC586281eE67a04F392D57618","deployErrorDetail":"","resolveErrorDetail":"","resolveRetryAttempted":false,"resolveRetryOutcome":"","postDeployDelayMs":25000}
+
+===== RUN 6/20 (bradbury) =====
+[run 6] wallet=0x186d2dabBE79810A6F3cBD8C09033E96C767c121
+[run 6] deployHash=0x367e674614eba288f898d672613e61a8e2a7498c5991b14566a296fbd66b14e1
+[run6_deploy] poll status=14 exec=NOT_VOTED elapsed=5797ms
+[run6_deploy] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=11856ms
+[run 6] resolveHash=0x23ee4365c432e57038c19b6576f60c1e109a8f0d8b1880a883a2a736a5b98b9a
+[run6_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=5566ms
+[run6_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=11163ms
+[run6_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=16736ms
+[run6_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=22376ms
+[run6_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=27854ms
+[run6_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=33268ms
+[run6_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=38642ms
+[run6_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=44212ms
+[run6_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=49974ms
+[run6_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=55636ms
+[run6_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=61210ms
+[run6_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=66812ms
+[run6_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=72411ms
+[run6_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=78025ms
+[run6_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=83849ms
+[run6_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=89580ms
+[run6_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=95154ms
+[run6_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=100718ms
+[run6_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=106410ms
+[run6_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=111981ms
+[run6_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=117732ms
+[run6_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=123364ms
+[run6_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=129150ms
+[run6_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=134922ms
+[run6_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=141033ms
+[run6_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=147169ms
+[run6_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=152868ms
+[run6_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=158492ms
+[run6_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=164249ms
+[run6_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=169912ms
+[run6_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=175541ms
+[run6_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=181108ms
+[run6_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=186873ms
+[run6_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=192313ms
+[run6_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=197815ms
+[run6_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=203320ms
+[run6_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=209406ms
+[run6_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=215063ms
+[run6_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=220843ms
+[run6_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=226449ms
+[run6_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=231885ms
+[run6_resolve] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=237266ms
+RUN::{"i":6,"network":"bradbury","deployHash":"0x367e674614eba288f898d672613e61a8e2a7498c5991b14566a296fbd66b14e1","deployVerdict":"AGREE_SUCCESS","deployVotes":{"AGREE":5},"deployVotesArray":["AGREE","AGREE","AGREE","AGREE","AGREE"],"deployMinorityDvCount":0,"deployValidatorAddresses":[],"deployValidatorHashes":["0x33c019114c4a71ca0487c6a10dd57fe98988112e735fa08a6dbc000eb76096b1","0x33c019114c4a71ca0487c6a10dd57fe98988112e735fa08a6dbc000eb76096b1","0x33c019114c4a71ca0487c6a10dd57fe98988112e735fa08a6dbc000eb76096b1","0x33c019114c4a71ca0487c6a10dd57fe98988112e735fa08a6dbc000eb76096b1","0x33c019114c4a71ca0487c6a10dd57fe98988112e735fa08a6dbc000eb76096b1"],"deployElapsedMs":11856,"resolveHash":"0x23ee4365c432e57038c19b6576f60c1e109a8f0d8b1880a883a2a736a5b98b9a","resolveVerdict":"AGREE_SUCCESS","resolveVotes":{"AGREE":4,"DETERMINISTIC_VIOLATION":1},"resolveVotesArray":["AGREE","DETERMINISTIC_VIOLATION","AGREE","AGREE","AGREE"],"resolveMinorityDvCount":1,"resolveValidatorAddresses":[],"resolveValidatorHashes":["0x11569f90ee9387616cd85da00859d8b313a8afbe5c565518ac927b3de3813ed1","0xb4f2352e92339a8c746ca3fb0236c49e5404b58f240780d4087d4ecb167963ac","0x11569f90ee9387616cd85da00859d8b313a8afbe5c565518ac927b3de3813ed1","0x11569f90ee9387616cd85da00859d8b313a8afbe5c565518ac927b3de3813ed1","0x11569f90ee9387616cd85da00859d8b313a8afbe5c565518ac927b3de3813ed1"],"resolveElapsedMs":237266,"totalMs":278748,"budgetHit":false,"contractAddress":"0xeA7cdE298872103747AD978EF70CE1a9b0fA04C0","deployErrorDetail":"","resolveErrorDetail":"","resolveRetryAttempted":false,"resolveRetryOutcome":"","postDeployDelayMs":25000}
+
+===== RUN 7/20 (bradbury) =====
+[run 7] wallet=0x186d2dabBE79810A6F3cBD8C09033E96C767c121
+[run 7] deployHash=0x16c9fb5b15bbec6832aa824fe1a10da5a663160d2e0f8cf19cf20f05702ad2e6
+[run7_deploy] poll status=REVEALING exec=FINISHED_WITH_RETURN elapsed=5693ms
+[run7_deploy] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=11319ms
+[run 7] resolveHash=0x88e5117f3fdc4a4f3dad6e66a3649de87dee7c67a02285651b73e460bb1bef8f
+[run7_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=5519ms
+[run7_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=11028ms
+[run7_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=16601ms
+[run7_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=22100ms
+[run7_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=27745ms
+[run7_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=33365ms
+[run7_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=39444ms
+[run7_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=45506ms
+[run7_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=50872ms
+[run7_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=56309ms
+[run7_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=62372ms
+[run7_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=67953ms
+[run7_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=73369ms
+[run7_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=78850ms
+[run7_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=84434ms
+[run7_resolve] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=90026ms
+RUN::{"i":7,"network":"bradbury","deployHash":"0x16c9fb5b15bbec6832aa824fe1a10da5a663160d2e0f8cf19cf20f05702ad2e6","deployVerdict":"AGREE_SUCCESS","deployVotes":{"AGREE":5},"deployVotesArray":["AGREE","AGREE","AGREE","AGREE","AGREE"],"deployMinorityDvCount":0,"deployValidatorAddresses":[],"deployValidatorHashes":["0x729e0655caa78d736da585595f7e4e8c2ebee4f7df912b09c79dc0580fcf282f","0x729e0655caa78d736da585595f7e4e8c2ebee4f7df912b09c79dc0580fcf282f","0x729e0655caa78d736da585595f7e4e8c2ebee4f7df912b09c79dc0580fcf282f","0x729e0655caa78d736da585595f7e4e8c2ebee4f7df912b09c79dc0580fcf282f","0x729e0655caa78d736da585595f7e4e8c2ebee4f7df912b09c79dc0580fcf282f"],"deployElapsedMs":11319,"resolveHash":"0x88e5117f3fdc4a4f3dad6e66a3649de87dee7c67a02285651b73e460bb1bef8f","resolveVerdict":"AGREE_SUCCESS","resolveVotes":{"AGREE":4,"DETERMINISTIC_VIOLATION":1},"resolveVotesArray":["AGREE","AGREE","DETERMINISTIC_VIOLATION","AGREE","AGREE"],"resolveMinorityDvCount":1,"resolveValidatorAddresses":[],"resolveValidatorHashes":["0xa2fafbc7c073d8bc3f4ecd5a45eaca04fdc6a7f9df70f49329a91dd94e8d108b","0xa2fafbc7c073d8bc3f4ecd5a45eaca04fdc6a7f9df70f49329a91dd94e8d108b","0x50d23f8364a7c74c21a4a135d46e90cdc4d203cd4a9362eb8f80a4e7768f12b0","0xa2fafbc7c073d8bc3f4ecd5a45eaca04fdc6a7f9df70f49329a91dd94e8d108b","0xa2fafbc7c073d8bc3f4ecd5a45eaca04fdc6a7f9df70f49329a91dd94e8d108b"],"resolveElapsedMs":90027,"totalMs":130953,"budgetHit":false,"contractAddress":"0x4ef5B87dcD5dE345CED0400BeFc667C734cADb40","deployErrorDetail":"","resolveErrorDetail":"","resolveRetryAttempted":false,"resolveRetryOutcome":"","postDeployDelayMs":25000}
+
+===== RUN 8/20 (bradbury) =====
+[run 8] wallet=0x186d2dabBE79810A6F3cBD8C09033E96C767c121
+[run 8] deployHash=0xdf30b1b0b5c709d2aaf980aa74b269bbf724fecf4a1f9f2b7ccbfed826336cbb
+[run8_deploy] poll status=REVEALING exec=FINISHED_WITH_RETURN elapsed=6236ms
+[run8_deploy] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=12000ms
+[run 8] resolveHash=0x85ec848f662c2bed6145d68d33c9888f5d2679b404df2368ba65cb59f6fe1496
+[run8_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=5701ms
+[run8_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=11343ms
+[run8_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=16910ms
+[run8_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=22518ms
+[run8_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=28038ms
+[run8_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=33648ms
+[run8_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=39220ms
+[run8_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=44794ms
+[run8_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=50384ms
+[run8_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=55868ms
+[run8_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=61463ms
+[run8_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=67119ms
+[run8_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=73196ms
+[run8_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=78807ms
+[run8_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=84464ms
+[run8_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=89823ms
+[run8_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=95391ms
+[run8_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=101475ms
+[run8_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=107051ms
+[run8_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=112621ms
+[run8_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=118191ms
+[run8_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=123697ms
+[run8_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=129386ms
+[run8_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=134844ms
+[run8_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=140986ms
+[run8_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=146632ms
+[run8_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=152247ms
+[run8_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=157952ms
+[run8_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=163530ms
+[run8_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=169061ms
+[run8_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=174746ms
+[run8_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=180257ms
+[run8_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=185856ms
+[run8_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=191483ms
+[run8_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=199145ms
+[run8_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=211482ms
+[run8_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=219288ms
+[run8_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=238741ms
+[run8_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=247859ms
+[run8_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=256764ms
+[run8_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=262892ms
+[run8_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=269025ms
+[run8_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=274726ms
+[run8_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=280529ms
+[run8_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=286221ms
+[run8_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=291858ms
+[run8_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=297475ms
+[run8_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=303235ms
+[run8_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=308817ms
+[run8_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=314255ms
+[run8_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=319685ms
+[run8_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=325086ms
+[run8_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=330785ms
+[run8_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=336872ms
+[run8_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=342273ms
+[run8_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=347940ms
+[run8_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=353474ms
+[run8_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=359035ms
+[run8_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=364518ms
+[run8_resolve] poll status=14 exec=FINISHED_WITH_RETURN elapsed=370096ms
+[run8_resolve] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=375603ms
+RUN::{"i":8,"network":"bradbury","deployHash":"0xdf30b1b0b5c709d2aaf980aa74b269bbf724fecf4a1f9f2b7ccbfed826336cbb","deployVerdict":"AGREE_SUCCESS","deployVotes":{"AGREE":5},"deployVotesArray":["AGREE","AGREE","AGREE","AGREE","AGREE"],"deployMinorityDvCount":0,"deployValidatorAddresses":[],"deployValidatorHashes":["0x6a706e3f20e9f2637ad06d1d9745afddfe9c09311da17adf0c2543639ef98b8e","0x6a706e3f20e9f2637ad06d1d9745afddfe9c09311da17adf0c2543639ef98b8e","0x6a706e3f20e9f2637ad06d1d9745afddfe9c09311da17adf0c2543639ef98b8e","0x6a706e3f20e9f2637ad06d1d9745afddfe9c09311da17adf0c2543639ef98b8e","0x6a706e3f20e9f2637ad06d1d9745afddfe9c09311da17adf0c2543639ef98b8e"],"deployElapsedMs":12000,"resolveHash":"0x85ec848f662c2bed6145d68d33c9888f5d2679b404df2368ba65cb59f6fe1496","resolveVerdict":"AGREE_SUCCESS","resolveVotes":{"AGREE":4,"TIMEOUT":1},"resolveVotesArray":["AGREE","AGREE","AGREE","AGREE","TIMEOUT"],"resolveMinorityDvCount":0,"resolveValidatorAddresses":[],"resolveValidatorHashes":["0xf21ec2d6657faacab17f74001a0c327a15d3666f8137cb9dd6fd1532d7ff52c8","0xf21ec2d6657faacab17f74001a0c327a15d3666f8137cb9dd6fd1532d7ff52c8","0xf21ec2d6657faacab17f74001a0c327a15d3666f8137cb9dd6fd1532d7ff52c8","0xf21ec2d6657faacab17f74001a0c327a15d3666f8137cb9dd6fd1532d7ff52c8","0x9fc8d2d92c2ea25ae2ac3d9b20370cb9cb1e53d073b5c1a20b03621ca750f8df"],"resolveElapsedMs":375603,"totalMs":417320,"budgetHit":false,"contractAddress":"0x92789e7A9A30E5821a89DF595736cB4a42A58c51","deployErrorDetail":"","resolveErrorDetail":"","resolveRetryAttempted":false,"resolveRetryOutcome":"","postDeployDelayMs":25000}
+
+===== RUN 9/20 (bradbury) =====
+[run 9] wallet=0x186d2dabBE79810A6F3cBD8C09033E96C767c121
+[run 9] deployHash=0xc07242b1aac226c2c1dc658d22f16c1b6f28dc1a48678469bbdc08a55189dbcc
+[run9_deploy] poll status=COMMITTING exec=NOT_VOTED elapsed=5580ms
+[run9_deploy] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=11785ms
+[run 9] resolve threw: Transaction reverted: EVM tx 0x8e6f6240d416e9f144d238c184fd572e90ef707efde4cd78bb299adc735d848f to consensus contract 0x0112Bf6e83497965A5fdD6Dad1E447a6E004271D was reverted.
+[run 9] resolveRetryHash=0x0c3761ac8370f932bc636a80f016df62d8f9f8175508e685d878c4792d08d885
+[run9_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=5478ms
+[run9_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=11071ms
+[run9_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=16632ms
+[run9_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=22049ms
+[run9_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=28185ms
+[run9_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=33655ms
+[run9_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=39236ms
+[run9_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=44647ms
+[run9_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=50770ms
+[run9_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=56408ms
+[run9_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=61922ms
+[run9_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=67587ms
+[run9_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=73143ms
+[run9_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=78738ms
+[run9_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=84330ms
+[run9_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=89772ms
+[run9_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=95462ms
+[run9_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=101033ms
+[run9_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=107144ms
+[run9_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=112517ms
+[run9_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=118116ms
+[run9_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=123686ms
+[run9_resolve_retry] poll status=REVEALING exec=FINISHED_WITH_RETURN elapsed=129045ms
+[run9_resolve_retry] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=134685ms
+RUN::{"i":9,"network":"bradbury","deployHash":"0xc07242b1aac226c2c1dc658d22f16c1b6f28dc1a48678469bbdc08a55189dbcc","deployVerdict":"AGREE_SUCCESS","deployVotes":{"AGREE":5},"deployVotesArray":["AGREE","AGREE","AGREE","AGREE","AGREE"],"deployMinorityDvCount":0,"deployValidatorAddresses":[],"deployValidatorHashes":["0x0a8fbd354a818efa7f1bf94b9d02a6884c65a45c682378b1af522e6d5e3ba086","0x0a8fbd354a818efa7f1bf94b9d02a6884c65a45c682378b1af522e6d5e3ba086","0x0a8fbd354a818efa7f1bf94b9d02a6884c65a45c682378b1af522e6d5e3ba086","0x0a8fbd354a818efa7f1bf94b9d02a6884c65a45c682378b1af522e6d5e3ba086","0x0a8fbd354a818efa7f1bf94b9d02a6884c65a45c682378b1af522e6d5e3ba086"],"deployElapsedMs":11785,"resolveHash":"0x0c3761ac8370f932bc636a80f016df62d8f9f8175508e685d878c4792d08d885","resolveVerdict":"RESOLVE_REVERT_RETRY_CLEAN","resolveVotes":{"AGREE":4,"TIMEOUT":1},"resolveVotesArray":["AGREE","AGREE","AGREE","TIMEOUT","AGREE"],"resolveMinorityDvCount":0,"resolveValidatorAddresses":[],"resolveValidatorHashes":["0x0388522842e622a0b3d4f2d5c54ff84e1dbbcaec96fa24c033524196163ae0c5","0x0388522842e622a0b3d4f2d5c54ff84e1dbbcaec96fa24c033524196163ae0c5","0x0388522842e622a0b3d4f2d5c54ff84e1dbbcaec96fa24c033524196163ae0c5","0x9fc8d2d92c2ea25ae2ac3d9b20370cb9cb1e53d073b5c1a20b03621ca750f8df","0x0388522842e622a0b3d4f2d5c54ff84e1dbbcaec96fa24c033524196163ae0c5"],"resolveElapsedMs":134685,"totalMs":238487,"budgetHit":false,"contractAddress":"0x05E36Ee7883515a4980b0EDD2349A9Df26797Ce8","deployErrorDetail":"","resolveErrorDetail":"","resolveRetryAttempted":true,"resolveRetryOutcome":"RESOLVE_REVERT_RETRY_CLEAN","postDeployDelayMs":25000}
+
+===== RUN 10/20 (bradbury) =====
+[run 10] wallet=0x186d2dabBE79810A6F3cBD8C09033E96C767c121
+[run 10] deployHash=0x89f3337fe631d215ee77b57bb2650a57c51314a38c524bbc2d15c425458d7431
+[run10_deploy] poll status=COMMITTING exec=NOT_VOTED elapsed=5805ms
+[run10_deploy] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=12056ms
+[run 10] resolveHash=0xb4183b4b7ec440c41f2510700c0cb4ab14c0ce94afab85005d436ed4a303e247
+[run10_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=5528ms
+[run10_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=11107ms
+[run10_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=16671ms
+[run10_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=22136ms
+[run10_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=28206ms
+[run10_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=33776ms
+[run10_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=39272ms
+[run10_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=44898ms
+[run10_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=50371ms
+[run10_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=55977ms
+[run10_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=62032ms
+[run10_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=67612ms
+[run10_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=73000ms
+[run10_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=78574ms
+[run10_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=84149ms
+[run10_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=89729ms
+[run10_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=95169ms
+[run10_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=100753ms
+[run10_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=106354ms
+[run10_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=111931ms
+[run10_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=117287ms
+[run10_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=122879ms
+[run10_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=128323ms
+[run10_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=133777ms
+[run10_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=139150ms
+[run10_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=144538ms
+[run10_resolve] poll status=REVEALING exec=FINISHED_WITH_RETURN elapsed=150132ms
+[run10_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=155532ms
+[run10_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=161039ms
+[run10_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=166436ms
+[run10_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=171894ms
+[run10_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=177512ms
+[run10_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=182952ms
+[run10_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=188592ms
+[run10_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=194206ms
+[run10_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=199821ms
+[run10_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=205323ms
+[run10_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=210793ms
+[run10_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=216368ms
+[run10_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=221869ms
+[run10_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=227308ms
+[run10_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=232785ms
+[run10_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=238277ms
+[run10_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=244399ms
+[run10_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=249989ms
+[run10_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=255548ms
+[run10_resolve] poll status=REVEALING exec=FINISHED_WITH_RETURN elapsed=261648ms
+[run10_resolve] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=267285ms
+RUN::{"i":10,"network":"bradbury","deployHash":"0x89f3337fe631d215ee77b57bb2650a57c51314a38c524bbc2d15c425458d7431","deployVerdict":"AGREE_SUCCESS","deployVotes":{"AGREE":5},"deployVotesArray":["AGREE","AGREE","AGREE","AGREE","AGREE"],"deployMinorityDvCount":0,"deployValidatorAddresses":[],"deployValidatorHashes":["0x69ccf996028248e7764154c84bec68d3e263b8ffde14859a72d6db1339fd0fa6","0x69ccf996028248e7764154c84bec68d3e263b8ffde14859a72d6db1339fd0fa6","0x69ccf996028248e7764154c84bec68d3e263b8ffde14859a72d6db1339fd0fa6","0x69ccf996028248e7764154c84bec68d3e263b8ffde14859a72d6db1339fd0fa6","0x69ccf996028248e7764154c84bec68d3e263b8ffde14859a72d6db1339fd0fa6"],"deployElapsedMs":12057,"resolveHash":"0xb4183b4b7ec440c41f2510700c0cb4ab14c0ce94afab85005d436ed4a303e247","resolveVerdict":"AGREE_SUCCESS","resolveVotes":{"AGREE":5},"resolveVotesArray":["AGREE","AGREE","AGREE","AGREE","AGREE"],"resolveMinorityDvCount":0,"resolveValidatorAddresses":[],"resolveValidatorHashes":["0xaaf7ffd25f4bebc0b20b183aa2c73b634d7ee96c64256d9be988adc270538ecb","0xaaf7ffd25f4bebc0b20b183aa2c73b634d7ee96c64256d9be988adc270538ecb","0xaaf7ffd25f4bebc0b20b183aa2c73b634d7ee96c64256d9be988adc270538ecb","0xaaf7ffd25f4bebc0b20b183aa2c73b634d7ee96c64256d9be988adc270538ecb","0xaaf7ffd25f4bebc0b20b183aa2c73b634d7ee96c64256d9be988adc270538ecb"],"resolveElapsedMs":267285,"totalMs":308865,"budgetHit":false,"contractAddress":"0x444DD302bAf6624516997167E7B65D4304D12Db4","deployErrorDetail":"","resolveErrorDetail":"","resolveRetryAttempted":false,"resolveRetryOutcome":"","postDeployDelayMs":25000}
+
+===== RUN 11/20 (bradbury) =====
+[run 11] wallet=0x186d2dabBE79810A6F3cBD8C09033E96C767c121
+[run 11] deployHash=0x24282e379adc8a3ba0e01633951c865535457e4f84f1b7da367b6aab83bce44c
+[run11_deploy] poll status=14 exec=NOT_VOTED elapsed=5789ms
+[run11_deploy] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=11574ms
+[run 11] resolve threw: Transaction reverted: EVM tx 0x89631840e02fdc84bc99d8cf8487732269413f69a3ffc599f5211ebf14b10ed5 to consensus contract 0x0112Bf6e83497965A5fdD6Dad1E447a6E004271D was reverted.
+[run 11] resolveRetryHash=0xbc839a889670965c88d25256f3e84deb9ba7bd86bdfe29e71b71ce113fa864b5
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=6076ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=11682ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=17291ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=23341ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=29417ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=35033ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=41120ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=46728ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=52339ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=57951ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=63574ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=69193ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=74805ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=80424ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=86185ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=92258ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=98319ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=103956ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=109597ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=115233ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=120992ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=126610ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=132258ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=137868ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=143489ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=149239ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=154862ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=160538ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=166147ms
+[run11_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=171804ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=177454ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=183090ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=188727ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=194441ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=200082ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=205644ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=211254ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=216894ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=222517ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=228119ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=233727ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=239120ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=244704ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=250105ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=255719ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=261200ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=266710ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=272325ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=277966ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=283544ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=289074ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=294690ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=300300ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=306087ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=311670ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=317288ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=322905ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=328563ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=333944ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=339610ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=345333ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=350983ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=356566ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=362053ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=367653ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=373090ms
+[run11_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=378789ms
+[run11_resolve_retry] poll status=14 exec=NOT_VOTED elapsed=384399ms
+[run11_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=389769ms
+[run11_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=395290ms
+[run11_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=400756ms
+[run11_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=406375ms
+[run11_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=411752ms
+[run11_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=417360ms
+[run11_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=422966ms
+[run11_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=428476ms
+[run11_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=433851ms
+[run11_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=439989ms
+[run11_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=459649ms
+[run11_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=472619ms
+RUN::{"i":11,"network":"bradbury","deployHash":"0x24282e379adc8a3ba0e01633951c865535457e4f84f1b7da367b6aab83bce44c","deployVerdict":"AGREE_SUCCESS","deployVotes":{"AGREE":5},"deployVotesArray":["AGREE","AGREE","AGREE","AGREE","AGREE"],"deployMinorityDvCount":0,"deployValidatorAddresses":[],"deployValidatorHashes":["0x5d93c674f10be0759594c589d770070a6a8281f3b29ae5bf5fff0642201b2b7f","0x5d93c674f10be0759594c589d770070a6a8281f3b29ae5bf5fff0642201b2b7f","0x5d93c674f10be0759594c589d770070a6a8281f3b29ae5bf5fff0642201b2b7f","0x5d93c674f10be0759594c589d770070a6a8281f3b29ae5bf5fff0642201b2b7f","0x5d93c674f10be0759594c589d770070a6a8281f3b29ae5bf5fff0642201b2b7f"],"deployElapsedMs":11575,"resolveHash":"0xbc839a889670965c88d25256f3e84deb9ba7bd86bdfe29e71b71ce113fa864b5","resolveVerdict":"RESOLVE_CONSENSUS_REVERT","resolveVotes":{"NOT_VOTED":5},"resolveVotesArray":["NOT_VOTED","NOT_VOTED","NOT_VOTED","NOT_VOTED","NOT_VOTED"],"resolveMinorityDvCount":0,"resolveValidatorAddresses":[],"resolveValidatorHashes":["0x0000000000000000000000000000000000000000000000000000000000000000","0x0000000000000000000000000000000000000000000000000000000000000000","0x0000000000000000000000000000000000000000000000000000000000000000","0x0000000000000000000000000000000000000000000000000000000000000000","0x0000000000000000000000000000000000000000000000000000000000000000"],"resolveElapsedMs":472619,"totalMs":576374,"budgetHit":true,"contractAddress":"0x882672FB63084e031cC512ABdDEE036AaBd3134F","deployErrorDetail":"","resolveErrorDetail":"first resolve threw: Transaction reverted: EVM tx 0x89631840e02fdc84bc99d8cf8487732269413f69a3ffc599f5211ebf14b10ed5 to consensus contract 0x0112Bf6e83497965A5fdD6Dad1E447a6E004271D was reverted.; retry verdict=TIMEOUT","resolveRetryAttempted":true,"resolveRetryOutcome":"RESOLVE_CONSENSUS_REVERT","postDeployDelayMs":25000}
+
+===== RUN 12/20 (bradbury) =====
+[run 12] wallet=0x186d2dabBE79810A6F3cBD8C09033E96C767c121
+[run 12] deployHash=0x05f58f6fbe90081a9d7e9f0b33fe9f382fa3d2cdd036193d332c6911565db0e7
+[run12_deploy] poll status=14 exec=NOT_VOTED elapsed=5773ms
+[run12_deploy] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=12043ms
+[run 12] resolve threw: Transaction reverted: EVM tx 0xbad1da47f69ebfdc7ed3d3e1eda6e3546d65aab6d43f19eb35090ac239dac2ce to consensus contract 0x0112Bf6e83497965A5fdD6Dad1E447a6E004271D was reverted.
+[run 12] resolve retry threw: Transaction reverted: EVM tx 0x8a2574da5dd801627b9749edce7f1f886a334202cce13bbc7146dbd42fedfbae to consensus contract 0x0112Bf6e83497965A5fdD6Dad1E447a6E004271D was reverted.
+RUN::{"i":12,"network":"bradbury","deployHash":"0x05f58f6fbe90081a9d7e9f0b33fe9f382fa3d2cdd036193d332c6911565db0e7","deployVerdict":"AGREE_SUCCESS","deployVotes":{"AGREE":5},"deployVotesArray":["AGREE","AGREE","AGREE","AGREE","AGREE"],"deployMinorityDvCount":0,"deployValidatorAddresses":[],"deployValidatorHashes":["0x3bf6232999e4699bc94247678babb60c6498a1f9106370ebcc3fefce16136f65","0x3bf6232999e4699bc94247678babb60c6498a1f9106370ebcc3fefce16136f65","0x3bf6232999e4699bc94247678babb60c6498a1f9106370ebcc3fefce16136f65","0x3bf6232999e4699bc94247678babb60c6498a1f9106370ebcc3fefce16136f65","0x3bf6232999e4699bc94247678babb60c6498a1f9106370ebcc3fefce16136f65"],"deployElapsedMs":12043,"resolveHash":"","resolveVerdict":"RESOLVE_CONSENSUS_REVERT","resolveVotes":{},"resolveVotesArray":[],"resolveMinorityDvCount":0,"resolveValidatorAddresses":[],"resolveValidatorHashes":[],"resolveElapsedMs":5036,"totalMs":118024,"budgetHit":false,"contractAddress":"0x7BeFC94AcE2F6Bc536CCbb9B7ECEF48FBb454179","deployErrorDetail":"","resolveErrorDetail":"first resolve threw: Transaction reverted: EVM tx 0xbad1da47f69ebfdc7ed3d3e1eda6e3546d65aab6d43f19eb35090ac239dac2ce to consensus contract 0x0112Bf6e83497965A5fdD6Dad1E447a6E004271D was reverted.; retry resolve threw: Transaction reverted: EVM tx 0x8a2574da5dd801627b9749edce7f1f886a334202cce13bbc7146dbd42fedfbae to consensus contract 0x0112Bf6e83497965A5fdD6Dad1E447a6E004271D was reverted.","resolveRetryAttempted":true,"resolveRetryOutcome":"RESOLVE_CONSENSUS_REVERT","postDeployDelayMs":25000}
+
+===== RUN 13/20 (bradbury) =====
+[run 13] wallet=0x186d2dabBE79810A6F3cBD8C09033E96C767c121
+[run 13] deployHash=0x1794b8ded4252bcf41f44a8e39d04ca136fda9f455e750a7fd5dd671cc54a440
+[run13_deploy] poll status=REVEALING exec=FINISHED_WITH_RETURN elapsed=5813ms
+[run13_deploy] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=12087ms
+[run 13] resolve threw: Transaction reverted: EVM tx 0xea60e058303a9ec72b9e18b10902445417d481eb79eca9334617833bccc5cb40 to consensus contract 0x0112Bf6e83497965A5fdD6Dad1E447a6E004271D was reverted.
+[run 13] resolveRetryHash=0xf7271e3eafbfdff95557e6526329fdfe4c836e89ff51c080805e2fc672e4ece4
+[run13_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=5758ms
+[run13_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=11848ms
+[run13_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=17912ms
+[run13_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=23551ms
+[run13_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=29621ms
+[run13_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=35001ms
+[run13_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=40696ms
+[run13_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=46749ms
+[run13_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=52115ms
+[run13_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=57493ms
+[run13_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=63552ms
+[run13_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=69163ms
+[run13_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=74646ms
+[run13_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=80262ms
+[run13_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=85904ms
+[run13_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=91397ms
+[run13_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=97030ms
+[run13_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=102407ms
+[run13_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=108065ms
+[run13_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=113582ms
+[run13_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=119038ms
+[run13_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=124415ms
+[run13_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=130469ms
+[run13_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=136049ms
+[run13_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=141669ms
+[run13_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=147238ms
+[run13_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=152807ms
+[run13_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=158402ms
+[run13_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=163979ms
+[run13_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=169587ms
+[run13_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=175066ms
+[run13_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=180721ms
+[run13_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=187566ms
+[run13_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=193658ms
+[run13_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=199765ms
+[run13_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=205378ms
+[run13_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=210996ms
+[run13_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=216612ms
+[run13_resolve_retry] poll status=14 exec=NOT_VOTED elapsed=221970ms
+[run13_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=227388ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=232994ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=238595ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=244031ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=249602ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=255202ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=260774ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=266830ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=272470ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=277911ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=283473ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=289137ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=294752ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=300297ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=305912ms
+[run13_resolve_retry] poll status=REVEALING exec=FINISHED_WITH_RETURN elapsed=311297ms
+[run13_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=316742ms
+[run13_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=323099ms
+[run13_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=328556ms
+[run13_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=334165ms
+[run13_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=339742ms
+[run13_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=345156ms
+[run13_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=350794ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=356388ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=361971ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=367373ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=372946ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=378448ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=384123ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=389692ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=395807ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=401309ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=407434ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=412993ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=418563ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=424061ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=429588ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=435148ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=440777ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=446344ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=452029ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=457604ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=463243ms
+[run13_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=464999ms
+RUN::{"i":13,"network":"bradbury","deployHash":"0x1794b8ded4252bcf41f44a8e39d04ca136fda9f455e750a7fd5dd671cc54a440","deployVerdict":"AGREE_SUCCESS","deployVotes":{"AGREE":5},"deployVotesArray":["AGREE","AGREE","AGREE","AGREE","AGREE"],"deployMinorityDvCount":0,"deployValidatorAddresses":[],"deployValidatorHashes":["0xf20322798f1e24c6206b70015b0a235b37a8807fdf344533833e433013fd01db","0xf20322798f1e24c6206b70015b0a235b37a8807fdf344533833e433013fd01db","0xf20322798f1e24c6206b70015b0a235b37a8807fdf344533833e433013fd01db","0xf20322798f1e24c6206b70015b0a235b37a8807fdf344533833e433013fd01db","0xf20322798f1e24c6206b70015b0a235b37a8807fdf344533833e433013fd01db"],"deployElapsedMs":12087,"resolveHash":"0xf7271e3eafbfdff95557e6526329fdfe4c836e89ff51c080805e2fc672e4ece4","resolveVerdict":"RESOLVE_CONSENSUS_REVERT","resolveVotes":{"NOT_VOTED":5},"resolveVotesArray":["NOT_VOTED","NOT_VOTED","NOT_VOTED","NOT_VOTED","NOT_VOTED"],"resolveMinorityDvCount":0,"resolveValidatorAddresses":[],"resolveValidatorHashes":["0x0000000000000000000000000000000000000000000000000000000000000000","0x0000000000000000000000000000000000000000000000000000000000000000","0x0000000000000000000000000000000000000000000000000000000000000000","0x0000000000000000000000000000000000000000000000000000000000000000","0x0000000000000000000000000000000000000000000000000000000000000000"],"resolveElapsedMs":465000,"totalMs":569893,"budgetHit":true,"contractAddress":"0x899f0c2c4D1857f676c90f606e9c144CE5d46F12","deployErrorDetail":"","resolveErrorDetail":"first resolve threw: Transaction reverted: EVM tx 0xea60e058303a9ec72b9e18b10902445417d481eb79eca9334617833bccc5cb40 to consensus contract 0x0112Bf6e83497965A5fdD6Dad1E447a6E004271D was reverted.; retry verdict=TIMEOUT","resolveRetryAttempted":true,"resolveRetryOutcome":"RESOLVE_CONSENSUS_REVERT","postDeployDelayMs":25000}
+
+===== RUN 14/20 (bradbury) =====
+[run 14] wallet=0x186d2dabBE79810A6F3cBD8C09033E96C767c121
+[run 14] deployHash=0x5b2dfced5096c2fb35d0575f12d16d3f8f6a0bd74007bd2f7ba11e0a65933d7e
+[run14_deploy] poll status=14 exec=NOT_VOTED elapsed=5602ms
+[run14_deploy] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=11278ms
+[run 14] resolveHash=0x0d160fe4f98f92283ca5a8a0a1512bcb7264a382112706e41e414bb350fe125a
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=5587ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=11161ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=16725ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=22234ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=27618ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=33213ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=38784ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=44845ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=50445ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=56077ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=61718ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=67404ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=73115ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=78657ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=84725ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=90297ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=95927ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=101429ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=107483ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=113140ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=118514ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=124121ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=129735ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=135247ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=140855ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=146465ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=151973ms
+[run14_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=157320ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=162887ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=168356ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=173870ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=179322ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=184938ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=191062ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=196679ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=202054ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=207528ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=212956ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=218542ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=224025ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=229615ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=235165ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=241291ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=246917ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=252545ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=258164ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=263781ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=269136ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=274749ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=280343ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=285982ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=291593ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=297718ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=303181ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=308852ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=314370ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=319955ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=325569ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=331194ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=336795ms
+[run14_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=342420ms
+[run14_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=348045ms
+[run14_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=353534ms
+[run14_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=358952ms
+[run14_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=364347ms
+[run14_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=369943ms
+[run14_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=376084ms
+[run14_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=381671ms
+[run14_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=387272ms
+[run14_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=392911ms
+[run14_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=398553ms
+[run14_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=404007ms
+[run14_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=409455ms
+[run14_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=414905ms
+[run14_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=420587ms
+[run14_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=426198ms
+[run14_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=431789ms
+[run14_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=437273ms
+[run14_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=442898ms
+[run14_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=448311ms
+[run14_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=453919ms
+[run14_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=459547ms
+[run14_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=465128ms
+[run14_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=466101ms
+RUN::{"i":14,"network":"bradbury","deployHash":"0x5b2dfced5096c2fb35d0575f12d16d3f8f6a0bd74007bd2f7ba11e0a65933d7e","deployVerdict":"AGREE_SUCCESS","deployVotes":{"AGREE":5},"deployVotesArray":["AGREE","AGREE","AGREE","AGREE","AGREE"],"deployMinorityDvCount":0,"deployValidatorAddresses":[],"deployValidatorHashes":["0x18d8f5bc36153d77ad4642c9ef1c97bd73948355a73f45096398a3b99cae7707","0x18d8f5bc36153d77ad4642c9ef1c97bd73948355a73f45096398a3b99cae7707","0x18d8f5bc36153d77ad4642c9ef1c97bd73948355a73f45096398a3b99cae7707","0x18d8f5bc36153d77ad4642c9ef1c97bd73948355a73f45096398a3b99cae7707","0x18d8f5bc36153d77ad4642c9ef1c97bd73948355a73f45096398a3b99cae7707"],"deployElapsedMs":11278,"resolveHash":"0x0d160fe4f98f92283ca5a8a0a1512bcb7264a382112706e41e414bb350fe125a","resolveVerdict":"TIMEOUT","resolveVotes":{"NOT_VOTED":5},"resolveVotesArray":["NOT_VOTED","NOT_VOTED","NOT_VOTED","NOT_VOTED","NOT_VOTED"],"resolveMinorityDvCount":0,"resolveValidatorAddresses":[],"resolveValidatorHashes":["0x0000000000000000000000000000000000000000000000000000000000000000","0x0000000000000000000000000000000000000000000000000000000000000000","0x0000000000000000000000000000000000000000000000000000000000000000","0x0000000000000000000000000000000000000000000000000000000000000000","0x0000000000000000000000000000000000000000000000000000000000000000"],"resolveElapsedMs":466101,"totalMs":508520,"budgetHit":true,"contractAddress":"0x6820aA98Ce3aaf25B8f832220cAd449527924160","deployErrorDetail":"","resolveErrorDetail":"","resolveRetryAttempted":false,"resolveRetryOutcome":"","postDeployDelayMs":25000}
+
+===== RUN 15/20 (bradbury) =====
+[run 15] wallet=0x186d2dabBE79810A6F3cBD8C09033E96C767c121
+[run 15] deployHash=0x04171abd4cae7f14db7aa0fa627aba76b3953f220967c3dfb49982b3b45d7764
+[run15_deploy] poll status=14 exec=NOT_VOTED elapsed=5697ms
+[run15_deploy] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=11359ms
+[run 15] resolveHash=0xa3e728ad411517c3c9f5e11302072857e3e9a08c901271ceea5485bfc8454f56
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=5592ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=11166ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=16760ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=22858ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=28461ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=34022ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=39519ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=45159ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=51263ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=56866ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=62482ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=67870ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=73380ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=78958ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=84388ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=90009ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=95590ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=101175ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=106577ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=112138ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=117791ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=123380ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=129449ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=135146ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=140901ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=146524ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=152096ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=158151ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=163638ms
+[run15_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=169690ms
+[run15_resolve] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=175284ms
+RUN::{"i":15,"network":"bradbury","deployHash":"0x04171abd4cae7f14db7aa0fa627aba76b3953f220967c3dfb49982b3b45d7764","deployVerdict":"AGREE_SUCCESS","deployVotes":{"AGREE":5},"deployVotesArray":["AGREE","AGREE","AGREE","AGREE","AGREE"],"deployMinorityDvCount":0,"deployValidatorAddresses":[],"deployValidatorHashes":["0x3e7d4a38fbd4e4c2444b5e8d3473ac47f723390ea14db31d55e6992ba6d3d3a2","0x3e7d4a38fbd4e4c2444b5e8d3473ac47f723390ea14db31d55e6992ba6d3d3a2","0x3e7d4a38fbd4e4c2444b5e8d3473ac47f723390ea14db31d55e6992ba6d3d3a2","0x3e7d4a38fbd4e4c2444b5e8d3473ac47f723390ea14db31d55e6992ba6d3d3a2","0x3e7d4a38fbd4e4c2444b5e8d3473ac47f723390ea14db31d55e6992ba6d3d3a2"],"deployElapsedMs":11359,"resolveHash":"0xa3e728ad411517c3c9f5e11302072857e3e9a08c901271ceea5485bfc8454f56","resolveVerdict":"AGREE_SUCCESS","resolveVotes":{"AGREE":4,"DETERMINISTIC_VIOLATION":1},"resolveVotesArray":["AGREE","AGREE","AGREE","DETERMINISTIC_VIOLATION","AGREE"],"resolveMinorityDvCount":1,"resolveValidatorAddresses":[],"resolveValidatorHashes":["0x1f75e31e4c4254ea6254371712e00aa6f7ed41069724ad7a17f79f59e192f776","0x1f75e31e4c4254ea6254371712e00aa6f7ed41069724ad7a17f79f59e192f776","0x1f75e31e4c4254ea6254371712e00aa6f7ed41069724ad7a17f79f59e192f776","0xfc8890dc08bd03d597996008cdd35c81e37df695797ca4df27caf0a20aa920ff","0x1f75e31e4c4254ea6254371712e00aa6f7ed41069724ad7a17f79f59e192f776"],"resolveElapsedMs":175284,"totalMs":217612,"budgetHit":false,"contractAddress":"0x821873ECD6BC676f0eD6108A6fCbC6E9e093e466","deployErrorDetail":"","resolveErrorDetail":"","resolveRetryAttempted":false,"resolveRetryOutcome":"","postDeployDelayMs":25000}
+
+===== RUN 16/20 (bradbury) =====
+[run 16] wallet=0x186d2dabBE79810A6F3cBD8C09033E96C767c121
+[run 16] deployHash=0xb37de3199b0ed1e138a8ffeab3b17a11af97e0b275b4aea147b3fd8ea867df0d
+[run16_deploy] poll status=REVEALING exec=FINISHED_WITH_RETURN elapsed=5773ms
+[run16_deploy] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=11468ms
+[run 16] resolve threw: Transaction reverted: EVM tx 0xcf669db672ba7d9ed4cd4f28dea9099526dd0c6148553cf9903a48c0596b0b91 to consensus contract 0x0112Bf6e83497965A5fdD6Dad1E447a6E004271D was reverted.
+[run 16] resolveRetryHash=0x6688f6f28b7a44adb66c0b9905d7872d340606da42e61e367df48e1e475f3bb1
+[run16_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=5459ms
+[run16_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=10993ms
+[run16_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=16579ms
+[run16_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=22200ms
+[run16_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=27739ms
+[run16_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=33378ms
+[run16_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=39469ms
+[run16_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=45047ms
+[run16_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=50458ms
+[run16_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=56522ms
+[run16_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=62592ms
+[run16_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=68659ms
+[run16_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=74701ms
+[run16_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=80336ms
+[run16_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=85985ms
+[run16_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=92059ms
+[run16_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=97712ms
+[run16_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=103352ms
+[run16_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=108966ms
+[run16_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=114586ms
+[run16_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=120231ms
+[run16_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=126005ms
+[run16_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=131643ms
+[run16_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=137733ms
+[run16_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=143370ms
+[run16_resolve_retry] poll status=REVEALING exec=FINISHED_WITH_RETURN elapsed=149017ms
+[run16_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=154635ms
+[run16_resolve_retry] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=160274ms
+[run16_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=165893ms
+[run16_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=171508ms
+[run16_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=177212ms
+[run16_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=182855ms
+[run16_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=188498ms
+[run16_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=194134ms
+[run16_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=199795ms
+[run16_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=205411ms
+[run16_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=211076ms
+[run16_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=217149ms
+[run16_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=222761ms
+[run16_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=228410ms
+[run16_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=234029ms
+[run16_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=239807ms
+[run16_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=245211ms
+[run16_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=251302ms
+[run16_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=256922ms
+[run16_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=262540ms
+[run16_resolve_retry] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=268252ms
+[run16_resolve_retry] poll status=14 exec=FINISHED_WITH_RETURN elapsed=273890ms
+[run16_resolve_retry] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=279534ms
+RUN::{"i":16,"network":"bradbury","deployHash":"0xb37de3199b0ed1e138a8ffeab3b17a11af97e0b275b4aea147b3fd8ea867df0d","deployVerdict":"AGREE_SUCCESS","deployVotes":{"AGREE":5},"deployVotesArray":["AGREE","AGREE","AGREE","AGREE","AGREE"],"deployMinorityDvCount":0,"deployValidatorAddresses":[],"deployValidatorHashes":["0xc6f0b70b954d102722c33e6be2a6c9269d081502ccfaaad1a67e96e19102f085","0xc6f0b70b954d102722c33e6be2a6c9269d081502ccfaaad1a67e96e19102f085","0xc6f0b70b954d102722c33e6be2a6c9269d081502ccfaaad1a67e96e19102f085","0xc6f0b70b954d102722c33e6be2a6c9269d081502ccfaaad1a67e96e19102f085","0xc6f0b70b954d102722c33e6be2a6c9269d081502ccfaaad1a67e96e19102f085"],"deployElapsedMs":11468,"resolveHash":"0x6688f6f28b7a44adb66c0b9905d7872d340606da42e61e367df48e1e475f3bb1","resolveVerdict":"RESOLVE_REVERT_RETRY_CLEAN","resolveVotes":{"AGREE":5},"resolveVotesArray":["AGREE","AGREE","AGREE","AGREE","AGREE"],"resolveMinorityDvCount":0,"resolveValidatorAddresses":[],"resolveValidatorHashes":["0xbaaef23bb5c575ff7eb2c7d31002ba0bcc0225e15d30050c0989e2934574d107","0xbaaef23bb5c575ff7eb2c7d31002ba0bcc0225e15d30050c0989e2934574d107","0xbaaef23bb5c575ff7eb2c7d31002ba0bcc0225e15d30050c0989e2934574d107","0xbaaef23bb5c575ff7eb2c7d31002ba0bcc0225e15d30050c0989e2934574d107","0xbaaef23bb5c575ff7eb2c7d31002ba0bcc0225e15d30050c0989e2934574d107"],"resolveElapsedMs":279534,"totalMs":382562,"budgetHit":false,"contractAddress":"0x0062C25a523e8B9E1A7345Bce80133C3b028DB34","deployErrorDetail":"","resolveErrorDetail":"","resolveRetryAttempted":true,"resolveRetryOutcome":"RESOLVE_REVERT_RETRY_CLEAN","postDeployDelayMs":25000}
+
+===== RUN 17/20 (bradbury) =====
+[run 17] wallet=0x186d2dabBE79810A6F3cBD8C09033E96C767c121
+[run 17] deployHash=0x2e46e3deab54cf66cd357ee4f52d23708be4eff4e2ddcfa40f60e43287bda301
+[run17_deploy] poll status=14 exec=NOT_VOTED elapsed=5792ms
+[run17_deploy] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=11560ms
+[run 17] resolveHash=0xc0cac54ed739b86db0a2ea44ec5523f6ee26f87efab572c68c39f1fd4c845093
+[run17_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=5635ms
+[run17_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=11398ms
+[run17_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=17040ms
+[run17_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=22657ms
+[run17_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=28325ms
+[run17_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=34443ms
+[run17_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=40072ms
+[run17_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=45697ms
+[run17_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=51323ms
+[run17_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=56973ms
+[run17_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=62591ms
+[run17_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=68241ms
+[run17_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=73883ms
+[run17_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=79539ms
+[run17_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=85161ms
+[run17_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=90802ms
+[run17_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=96379ms
+[run17_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=101993ms
+[run17_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=107641ms
+[run17_resolve] poll status=REVEALING exec=FINISHED_WITH_RETURN elapsed=113263ms
+[run17_resolve] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=118897ms
+RUN::{"i":17,"network":"bradbury","deployHash":"0x2e46e3deab54cf66cd357ee4f52d23708be4eff4e2ddcfa40f60e43287bda301","deployVerdict":"AGREE_SUCCESS","deployVotes":{"AGREE":5},"deployVotesArray":["AGREE","AGREE","AGREE","AGREE","AGREE"],"deployMinorityDvCount":0,"deployValidatorAddresses":[],"deployValidatorHashes":["0xe8a472aa2504bf567d2226cd10f1207391f3506d7bea0a7ac7eb188f41a5f97a","0xe8a472aa2504bf567d2226cd10f1207391f3506d7bea0a7ac7eb188f41a5f97a","0xe8a472aa2504bf567d2226cd10f1207391f3506d7bea0a7ac7eb188f41a5f97a","0xe8a472aa2504bf567d2226cd10f1207391f3506d7bea0a7ac7eb188f41a5f97a","0xe8a472aa2504bf567d2226cd10f1207391f3506d7bea0a7ac7eb188f41a5f97a"],"deployElapsedMs":11560,"resolveHash":"0xc0cac54ed739b86db0a2ea44ec5523f6ee26f87efab572c68c39f1fd4c845093","resolveVerdict":"AGREE_SUCCESS","resolveVotes":{"AGREE":5},"resolveVotesArray":["AGREE","AGREE","AGREE","AGREE","AGREE"],"resolveMinorityDvCount":0,"resolveValidatorAddresses":[],"resolveValidatorHashes":["0xd5c9c82732132e06eaca64df151959ef796b200dfc267434d7a9b082b15b1731","0xd5c9c82732132e06eaca64df151959ef796b200dfc267434d7a9b082b15b1731","0xd5c9c82732132e06eaca64df151959ef796b200dfc267434d7a9b082b15b1731","0xd5c9c82732132e06eaca64df151959ef796b200dfc267434d7a9b082b15b1731","0xd5c9c82732132e06eaca64df151959ef796b200dfc267434d7a9b082b15b1731"],"resolveElapsedMs":118897,"totalMs":159733,"budgetHit":false,"contractAddress":"0x347f2d235BeED473664e13C326D92D34d5FB61ba","deployErrorDetail":"","resolveErrorDetail":"","resolveRetryAttempted":false,"resolveRetryOutcome":"","postDeployDelayMs":25000}
+
+===== RUN 18/20 (bradbury) =====
+[run 18] wallet=0x186d2dabBE79810A6F3cBD8C09033E96C767c121
+[run 18] deployHash=0x46628745852056ac24cba494abb2e06831cc96f524acf55100059ed63fe93054
+[run18_deploy] poll status=COMMITTING exec=NOT_VOTED elapsed=5807ms
+[run18_deploy] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=11584ms
+[run 18] resolveHash=0x912e260316a558536163d19afc0c71b11f11bad7658d207832c0523eb3355471
+[run18_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=5758ms
+[run18_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=11398ms
+[run18_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=17015ms
+[run18_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=22648ms
+[run18_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=28269ms
+[run18_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=33672ms
+[run18_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=39052ms
+[run18_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=44663ms
+[run18_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=50232ms
+[run18_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=55867ms
+[run18_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=61515ms
+[run18_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=67139ms
+[run18_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=72820ms
+[run18_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=78454ms
+[run18_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=84073ms
+[run18_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=89720ms
+[run18_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=95326ms
+[run18_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=100970ms
+[run18_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=106617ms
+[run18_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=112240ms
+[run18_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=117942ms
+[run18_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=123564ms
+[run18_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=129185ms
+[run18_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=134806ms
+[run18_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=140418ms
+[run18_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=146066ms
+[run18_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=151677ms
+[run18_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=157298ms
+[run18_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=162967ms
+[run18_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=168588ms
+[run18_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=174176ms
+[run18_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=179828ms
+[run18_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=185477ms
+[run18_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=190848ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=196425ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=202185ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=207840ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=213422ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=219045ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=224655ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=230418ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=236052ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=241679ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=247323ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=252968ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=258586ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=264228ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=269857ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=275475ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=281115ms
+[run18_resolve] poll status=14 exec=FINISHED_WITH_RETURN elapsed=286470ms
+[run18_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=292085ms
+[run18_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=298178ms
+[run18_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=303823ms
+[run18_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=309461ms
+[run18_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=315110ms
+[run18_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=320777ms
+[run18_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=326399ms
+[run18_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=332025ms
+[run18_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=337583ms
+[run18_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=343217ms
+[run18_resolve] poll status=PROPOSING exec=FINISHED_WITH_RETURN elapsed=348858ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=354566ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=360193ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=365857ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=371479ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=377113ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=382731ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=388498ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=394133ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=399722ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=405841ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=411486ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=417119ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=422757ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=428403ms
+[run18_resolve] poll status=COMMITTING exec=FINISHED_WITH_RETURN elapsed=433763ms
+[run18_resolve] poll status=14 exec=FINISHED_WITH_RETURN elapsed=439389ms
+[run18_resolve] poll status=VALIDATORS_TIMEOUT exec=FINISHED_WITH_RETURN elapsed=445031ms
+[run18_resolve] poll status=VALIDATORS_TIMEOUT exec=FINISHED_WITH_RETURN elapsed=450656ms
+[run18_resolve] poll status=VALIDATORS_TIMEOUT exec=FINISHED_WITH_RETURN elapsed=456294ms
+[run18_resolve] poll status=VALIDATORS_TIMEOUT exec=FINISHED_WITH_RETURN elapsed=461913ms
+[run18_resolve] poll status=VALIDATORS_TIMEOUT exec=FINISHED_WITH_RETURN elapsed=467523ms
+RUN::{"i":18,"network":"bradbury","deployHash":"0x46628745852056ac24cba494abb2e06831cc96f524acf55100059ed63fe93054","deployVerdict":"AGREE_SUCCESS","deployVotes":{"AGREE":5},"deployVotesArray":["AGREE","AGREE","AGREE","AGREE","AGREE"],"deployMinorityDvCount":0,"deployValidatorAddresses":[],"deployValidatorHashes":["0xe995e99b05adb8c5cd6bb7f8f86bf688525b9487cc6a6726ea4135a743baab0a","0xe995e99b05adb8c5cd6bb7f8f86bf688525b9487cc6a6726ea4135a743baab0a","0xe995e99b05adb8c5cd6bb7f8f86bf688525b9487cc6a6726ea4135a743baab0a","0xe995e99b05adb8c5cd6bb7f8f86bf688525b9487cc6a6726ea4135a743baab0a","0xe995e99b05adb8c5cd6bb7f8f86bf688525b9487cc6a6726ea4135a743baab0a"],"deployElapsedMs":11584,"resolveHash":"0x912e260316a558536163d19afc0c71b11f11bad7658d207832c0523eb3355471","resolveVerdict":"TIMEOUT","resolveVotes":{"TIMEOUT":3,"AGREE":2},"resolveVotesArray":["TIMEOUT","TIMEOUT","AGREE","TIMEOUT","AGREE"],"resolveMinorityDvCount":0,"resolveValidatorAddresses":[],"resolveValidatorHashes":["0x9fc8d2d92c2ea25ae2ac3d9b20370cb9cb1e53d073b5c1a20b03621ca750f8df","0x9fc8d2d92c2ea25ae2ac3d9b20370cb9cb1e53d073b5c1a20b03621ca750f8df","0x0b9241b1cf374b11488857d984b3d03ed9ab799d261260b0df389c3a84f2831c","0x9fc8d2d92c2ea25ae2ac3d9b20370cb9cb1e53d073b5c1a20b03621ca750f8df","0x0b9241b1cf374b11488857d984b3d03ed9ab799d261260b0df389c3a84f2831c"],"resolveElapsedMs":467524,"totalMs":508243,"budgetHit":true,"contractAddress":"0x366DBc91B9Ec4D2A9a7Ff1424099813E4832bd86","deployErrorDetail":"","resolveErrorDetail":"","resolveRetryAttempted":false,"resolveRetryOutcome":"","postDeployDelayMs":25000}
+
+===== RUN 19/20 (bradbury) =====
+[run 19] wallet=0x186d2dabBE79810A6F3cBD8C09033E96C767c121
+[run 19] deployHash=0x526bbd80f5ed0e6e9205f98e09cdf4e36c21c7497b2c3ee8c0a91949e3ad1758
+[run19_deploy] poll status=14 exec=NOT_VOTED elapsed=5612ms
+[run19_deploy] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=11382ms
+[run 19] resolveHash=0xe8adfc42894de32ee9b3819bf96626ab666e361e75849bc6019704d97453e853
+[run19_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=6071ms
+[run19_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=11711ms
+[run19_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=17323ms
+[run19_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=22939ms
+[run19_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=28521ms
+[run19_resolve] poll status=PROPOSING exec=NOT_VOTED elapsed=34147ms
+[run19_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=40212ms
+[run19_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=46342ms
+[run19_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=51960ms
+[run19_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=57606ms
+[run19_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=63225ms
+[run19_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=68899ms
+[run19_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=74543ms
+[run19_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=80167ms
+[run19_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=85779ms
+[run19_resolve] poll status=COMMITTING exec=NOT_VOTED elapsed=91415ms
+[run19_resolve] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=97054ms
+RUN::{"i":19,"network":"bradbury","deployHash":"0x526bbd80f5ed0e6e9205f98e09cdf4e36c21c7497b2c3ee8c0a91949e3ad1758","deployVerdict":"AGREE_SUCCESS","deployVotes":{"AGREE":5},"deployVotesArray":["AGREE","AGREE","AGREE","AGREE","AGREE"],"deployMinorityDvCount":0,"deployValidatorAddresses":[],"deployValidatorHashes":["0x19cc530d7298d8f84316c60e79f50cb585d00e53ab35440ff67d6a71165a6872","0x19cc530d7298d8f84316c60e79f50cb585d00e53ab35440ff67d6a71165a6872","0x19cc530d7298d8f84316c60e79f50cb585d00e53ab35440ff67d6a71165a6872","0x19cc530d7298d8f84316c60e79f50cb585d00e53ab35440ff67d6a71165a6872","0x19cc530d7298d8f84316c60e79f50cb585d00e53ab35440ff67d6a71165a6872"],"deployElapsedMs":11383,"resolveHash":"0xe8adfc42894de32ee9b3819bf96626ab666e361e75849bc6019704d97453e853","resolveVerdict":"AGREE_SUCCESS","resolveVotes":{"TIMEOUT":1,"AGREE":4},"resolveVotesArray":["TIMEOUT","AGREE","AGREE","AGREE","AGREE"],"resolveMinorityDvCount":0,"resolveValidatorAddresses":[],"resolveValidatorHashes":["0x9fc8d2d92c2ea25ae2ac3d9b20370cb9cb1e53d073b5c1a20b03621ca750f8df","0x0689688c80bb47376027f59b1a80eab5a61a3e15461927871ebf2c3715758060","0x0689688c80bb47376027f59b1a80eab5a61a3e15461927871ebf2c3715758060","0x0689688c80bb47376027f59b1a80eab5a61a3e15461927871ebf2c3715758060","0x0689688c80bb47376027f59b1a80eab5a61a3e15461927871ebf2c3715758060"],"resolveElapsedMs":97055,"totalMs":137524,"budgetHit":false,"contractAddress":"0x5A32AF90824fE6b7ee3C5dF95b769fF1F373A332","deployErrorDetail":"","resolveErrorDetail":"","resolveRetryAttempted":false,"resolveRetryOutcome":"","postDeployDelayMs":25000}
+
+===== RUN 20/20 (bradbury) =====
+[run 20] wallet=0x186d2dabBE79810A6F3cBD8C09033E96C767c121
+[run 20] deployHash=0xba440e0d3ec8b858ed01eb5ceb93fed6ae83c1505a4b549fee91f52b8291d74b
+[run20_deploy] poll status=14 exec=NOT_VOTED elapsed=5777ms
+[run20_deploy] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=11550ms
+[run 20] resolve threw: Transaction reverted: EVM tx 0x9d2f1533f1a6c7f0e4f6bf85fd013738d1805f87c0b1f65d13b1d7c1501b3cb4 to consensus contract 0x0112Bf6e83497965A5fdD6Dad1E447a6E004271D was reverted.
+[run 20] resolveRetryHash=0x636d5a3c46cdbd8e47ace8f206a9a4f953426c8dbb0c46cc5afab21d25dfd039
+[run20_resolve_retry] poll status=PROPOSING exec=NOT_VOTED elapsed=5644ms
+[run20_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=11024ms
+[run20_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=16637ms
+[run20_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=22280ms
+[run20_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=27904ms
+[run20_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=33525ms
+[run20_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=39140ms
+[run20_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=45180ms
+[run20_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=50561ms
+[run20_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=56174ms
+[run20_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=61816ms
+[run20_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=67482ms
+[run20_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=73119ms
+[run20_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=78751ms
+[run20_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=84412ms
+[run20_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=90028ms
+[run20_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=95644ms
+[run20_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=101292ms
+[run20_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=106931ms
+[run20_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=112523ms
+[run20_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=118138ms
+[run20_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=123761ms
+[run20_resolve_retry] poll status=COMMITTING exec=NOT_VOTED elapsed=129381ms
+[run20_resolve_retry] poll status=REVEALING exec=FINISHED_WITH_RETURN elapsed=135024ms
+[run20_resolve_retry] poll status=ACCEPTED exec=FINISHED_WITH_RETURN elapsed=140644ms
+RUN::{"i":20,"network":"bradbury","deployHash":"0xba440e0d3ec8b858ed01eb5ceb93fed6ae83c1505a4b549fee91f52b8291d74b","deployVerdict":"AGREE_SUCCESS","deployVotes":{"AGREE":5},"deployVotesArray":["AGREE","AGREE","AGREE","AGREE","AGREE"],"deployMinorityDvCount":0,"deployValidatorAddresses":[],"deployValidatorHashes":["0xea3666b9279eb6a3bc010229e13c55ec5c73dc767732001de81800fea0d824b5","0xea3666b9279eb6a3bc010229e13c55ec5c73dc767732001de81800fea0d824b5","0xea3666b9279eb6a3bc010229e13c55ec5c73dc767732001de81800fea0d824b5","0xea3666b9279eb6a3bc010229e13c55ec5c73dc767732001de81800fea0d824b5","0xea3666b9279eb6a3bc010229e13c55ec5c73dc767732001de81800fea0d824b5"],"deployElapsedMs":11551,"resolveHash":"0x636d5a3c46cdbd8e47ace8f206a9a4f953426c8dbb0c46cc5afab21d25dfd039","resolveVerdict":"RESOLVE_REVERT_RETRY_CLEAN","resolveVotes":{"TIMEOUT":1,"AGREE":4},"resolveVotesArray":["TIMEOUT","AGREE","AGREE","AGREE","AGREE"],"resolveMinorityDvCount":0,"resolveValidatorAddresses":[],"resolveValidatorHashes":["0x9fc8d2d92c2ea25ae2ac3d9b20370cb9cb1e53d073b5c1a20b03621ca750f8df","0xf82beb439e88bf24c3ced4cfb879669668b50b43ee33f80f72ceb1b436a5d02a","0xf82beb439e88bf24c3ced4cfb879669668b50b43ee33f80f72ceb1b436a5d02a","0xf82beb439e88bf24c3ced4cfb879669668b50b43ee33f80f72ceb1b436a5d02a","0xf82beb439e88bf24c3ced4cfb879669668b50b43ee33f80f72ceb1b436a5d02a"],"resolveElapsedMs":140644,"totalMs":243982,"budgetHit":false,"contractAddress":"0x4Aa481d138502883E9aA38D9b0690b547E7e0571","deployErrorDetail":"","resolveErrorDetail":"","resolveRetryAttempted":true,"resolveRetryOutcome":"RESOLVE_REVERT_RETRY_CLEAN","postDeployDelayMs":25000}
+
+BATCH_SUMMARY::{"network":"bradbury","n":20,"budgetSeconds":480,"deployVerdicts":{"AGREE_SUCCESS":20,"AGREE_ERROR":0,"DV":0,"CANCELED":0,"OTHER":0,"TIMEOUT":0,"THROW":0,"RESOLVE_CONSENSUS_REVERT":0,"RESOLVE_REVERT_RETRY_CLEAN":0,"SKIPPED":0},"resolveVerdicts":{"AGREE_SUCCESS":10,"AGREE_ERROR":0,"DV":0,"CANCELED":0,"OTHER":0,"TIMEOUT":2,"THROW":0,"RESOLVE_CONSENSUS_REVERT":3,"RESOLVE_REVERT_RETRY_CLEAN":5,"SKIPPED":0},"deployMinorityDvCount":0,"resolveMinorityDvCount":5,"deployAnyMinorityDvRuns":0,"resolveAnyMinorityDvRuns":5,"deployElapsedMedianMs":11580,"deployElapsedP95Ms":12113,"resolveElapsedMedianMs":252276,"resolveElapsedP95Ms":467779,"totalElapsedMedianMs":293807,"totalElapsedP95Ms":570217,"budgetHitCount":4,"startedAtIso":"2026-07-01T16:13:36.740Z","finishedAtIso":"2026-07-01T18:00:20.768Z","wallClockMs":6404026}
