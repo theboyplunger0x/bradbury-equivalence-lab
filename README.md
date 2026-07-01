@@ -2611,32 +2611,29 @@ Still LAB. Production stays on studionet.
 
 ---
 
-## Phase 10 — 05_v1 canonical LLM (`prompt_comparative`) + retry guard (N=10, budget 480s)
+## Phase 10 corrected interpretation:
 
-Phase 9 hard-blamed LLM for bradbury liveness failure based on
-`03_price_llm_field_only_v3` (0/5 clean on resolve). Phase 10 tests
-whether that was really "LLM" or really "the specific 03_v3
-re-derive-integer-from-LLM-output pattern" by running the *canonical*
-`gl.eq_principle.prompt_comparative` pattern (the one FUD's production
-`betting_escrow.py` uses) as `05_price_llm_comparative_v1.py`.
+05_v1 does not exercise LLM during deploy. Deploy success only proves the contract bootstraps cleanly.
 
-Batch runner was patched with a **retry guard**: after a first
-RESOLVE-THROW / RESOLVE_CONSENSUS_REVERT, the runner re-issues the
-resolve tx once. Per Phase 9c's THROW investigation, this is safe
-because the contract never advanced past init state on the first
-attempt.
+Resolve results:
+- 6/10 first-try AGREE_SUCCESS
+- 2/10 recovered after one retry from consensus-contract revert
+- 2/10 remained consensus-contract revert after retry
+- 0/10 top-level deterministic-violation verdicts
+- minority per-validator DETERMINISTIC_VIOLATION votes were observed in several successful runs (runs 2 retry, 3, 5, 8 per the log)
 
-### Batch summary (05_v1, N=10, bradbury, budget 480s, retry ON)
+Interpretation:
+prompt_comparative is materially better than the 03_v3 re-derive pattern in this small sample, but it is not yet proven production-stable. At N=10, zero top-level DV is not enough to bound true DV risk tightly (95% Clopper-Pearson upper bound on true DV rate is ~30% at N=10). The 60% first-try success rate matches 04_v4 no-LLM, suggesting much of the failure mode is generic Bradbury liveness/wrapper noise rather than LLM-specific.
 
-```
-deployVerdicts:  {AGREE_SUCCESS: 10}                                              # 100% clean
-resolveVerdicts: {AGREE_SUCCESS: 6, RESOLVE_REVERT_RETRY_CLEAN: 2,
-                  RESOLVE_CONSENSUS_REVERT: 2}
-end-to-end: 6/10 clean first try + 2/10 recovered by retry = 8/10 clean = 80%
-DV: 0                                                                             # zero deterministic violations WITH LLM
-medians: deploy 12s, resolve 170s, total 212s
-p95:     deploy 12s, resolve 316s, total 381s
-```
+What this does NOT prove:
+- LLM works on Bradbury (deploy never exercised the LLM)
+- Canonical prompt_comparative converges (N too small)
+- 03_v3 is overturned (different LLM surface area — 03_v3 exercises LLM at deploy AND resolve, 05_v1 only inside resolve's nested fetch)
+
+What this DOES support:
+- prompt_comparative is viable enough to keep testing
+- Retry guard cures ~50% of consensus-contract reverts
+- Failure mode signatures match 04_v4 no-LLM — likely shared Bradbury infra noise
 
 Raw batch log: [`logs/phase10-05v1-bradbury-N10-prompt-comparative-retry.log`](logs/phase10-05v1-bradbury-N10-prompt-comparative-retry.log).
 
@@ -2647,33 +2644,12 @@ Raw batch log: [`logs/phase10-05v1-bradbury-N10-prompt-comparative-retry.log`](l
 | 02_v3    | no LLM                     | 70%           | n/t        | 28s          | 0  |
 | 04_v4    | no LLM + web I/O           | 60%           | n/t        | 218s         | 0  |
 | 03_v3    | LLM re-derive              | 0%            | n/t        | 214s         | 1  |
-| **05_v1**| **LLM prompt_comparative** | **60%**       | **80%**    | **212s**     | **0** |
-
-### Key correction: "no LLM on bradbury" was overreach
-
-Phase 9's headline — *"LLM materially breaks bradbury liveness"* — was
-**correct scoped to the 03_v3 re-derive pattern** and **wrong as a
-general claim**. The canonical `gl.eq_principle.prompt_comparative`
-pattern that our production `betting_escrow.py` actually uses works
-on bradbury:
-
-- **60% clean first try** (matches 04_v4 no-LLM+web-I/O, better than 02_v3's 70% on a smaller sample given the larger operation).
-- **80% clean with the retry guard** applied.
-- **Zero deterministic violations** — every failure mode was a
-  consensus-layer revert / benign transient, never a leader-vs-
-  validator divergence.
-- Median total latency **212s**, effectively identical to the no-LLM
-  path (218s median on 04_v4).
-
-Concretely: **LLM is back on the table for FUD, scoped to the
-canonical `prompt_comparative` pattern.** The 03-shape "leader runs
-LLM, validators re-derive integer" pattern remains disqualified; the
-canonical pattern does not.
+| **05_v1**| **LLM prompt_comparative** | **60%**       | **6 first-try / 8 with retry** | **212s**     | **0** |
 
 ### Framing
 
-Still LAB. Production FUD price + WC settlement stays on studionet.
+Still LAB / experimental. Production FUD price + WC settlement stays on studionet.
 Phase 10 corrects a scoping error in the Phase 9 verdict; it does not
 touch production behavior. Stage 3 shadow canary design can now
-include an LLM-based path (`prompt_comparative`) as a candidate, not
-just no-LLM paths.
+consider an LLM-based path (`prompt_comparative`) as a candidate for
+further testing, alongside no-LLM paths.
