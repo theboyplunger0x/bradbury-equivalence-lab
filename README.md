@@ -2064,3 +2064,152 @@ validator-vs-leader HTTP divergence.
    review correctly refused to call v4 "AGREE" on the basis of identical
    validator hashes alone — disagreement-with-leader is still
    disagreement. Lab discipline: vote vector first, hash analysis second.
+
+## Phase 7 — 04_v4 slug fix + bradbury retry
+
+Phase 7 applied the one-line bug fix identified in Phase 6 (ESPN slug
+`fifa.worldcup` returns 400, correct slug is `fifa.world`) and re-ran
+04_v4 on Bradbury testnet to test whether structured JSON + a working
+endpoint would close the leader-vs-validator HTTP divergence.
+
+### Bug + fix
+
+- File: `04_worldcup_enum_v4.py`
+- Line 118: `fifa.worldcup` → `fifa.world` (single string replacement,
+  no logic change).
+- Local gate: `py_compile` PASS, tests 9/9 PASS.
+- Slug fix confirmed in deployed source.
+
+### Deploy result
+
+- deployHash: `0x0cd5ff903a2328b7b25673f88d8093e3ab4ba4993bcd72a4a94f5292fbc39cbc`
+- contractAddress: `0x61B55b1F7a42649bCb6Dcf4Aa933095E3dD19793`
+- Deploy status: ACCEPTED / FINISHED_WITH_RETURN
+- Deploy votes: **AGREE: 4, TIMEOUT: 1** (not strict 5/5)
+- validatorResultHash on deploy: 4 identical
+  (`0xd1720b...1e1fdc`) + 1 outlier from the TIMEOUT validator
+  (`0x9fc8d2...50f8df`).
+- `hashesIdentical=false` but 4/5 leader-matching. Leader was one of the
+  4 AGREE voters.
+- Deploy verdict per DV-precedence classifier: AGREE_SUCCESS.
+
+Important nuance: `__init__` does not fetch ESPN — the deploy hash
+divergence is NOT app-level slug behavior. It is a Bradbury validator
+timeout / infra / latency event (one validator dropped out entirely
+rather than voting on identical bootstrap output).
+
+### Resolve result
+
+- resolveHash: `0xc6943094babe88dba275e18b674de3b293d216011d5e92150c94908e125df7ea`
+- Last observed status: **COMMITTING** / exec=NOT_VOTED, elapsed ~236s
+  (well within the 15min poll budget).
+- Resolve votes at Stop-hook fire time: **empty** (tx had not yet
+  decided).
+- Resolve verdict: **SKIPPED** — the run wrapper exited before the tx
+  reached a terminal state.
+- Validator hashes identical: false (nothing to compare — no votes yet).
+- Leader agrees with validators: false (nothing to compare — no votes
+  yet).
+
+The resolve is the actual test for the Phase 6 finding (leader-vs-
+validator HTTP-acquisition divergence). Phase 7 does not yet have that
+evidence. It has deploy evidence + a resolve tx in flight.
+
+### Comparison Phase 6 vs Phase 7
+
+| dimension | Phase 6 (04_v4, `fifa.worldcup`) | Phase 7 (04_v4, `fifa.world`) |
+|-----------|----------------------------------|-------------------------------|
+| Slug | broken (`fifa.worldcup` → 400) | fixed (`fifa.world` → data) |
+| Deploy votes | 5/5 AGREE | 4 AGREE / 1 TIMEOUT |
+| Deploy hashes | 5 identical (bootstrap deterministic) | 4 identical + 1 outlier (TIMEOUT validator) |
+| Deploy verdict | AGREE_SUCCESS | AGREE_SUCCESS (DV-precedence, majority) |
+| Resolve votes | 5/5 DISAGREE with leader | **unknown / pending** (COMMITTING at cutoff) |
+| Resolve hashes | 5 identical validator hashes, leader different | unknown / pending |
+| Resolve verdict | ACCEPTED / FINISHED_WITH_ERROR | **SKIPPED — undecided at run end** |
+| Structured-API thesis | half-validated (validator-set entropy → 0, HTTP still nondet) | **still half-validated — Phase 7 adds no terminal resolve evidence** |
+| Bradbury-ready? | NOT YET | **STILL NOT YET (readiness unproven, resolve pending)** |
+
+### Codex second-opinion (Phase 7)
+
+Codex was called fresh on the Phase 7 receipts (read-only, adversarial).
+Verbatim:
+
+- **(a) Did the slug fix resolve the divergence?** "No, the slug fix has
+  not yet proven it resolved leader-vs-validator divergence. It fixed
+  the source... but deploy does not fetch ESPN; `__init__` only stores
+  args. The ESPN fetch happens in `resolve()` via `_derive_outcome()`.
+  The resolve tx was still `COMMITTING / NOT_VOTED` at the last log
+  line, so the actual resolve outcome is unknown."
+- **(b) Thesis now fully validated?** "No. The structured-API thesis is
+  not fully validated by Phase 7. Phase 6 still half-validates it...
+  Phase 7 has not yet produced a terminal resolve vote, so it adds
+  deploy/bootstrap evidence only, not end-to-end resolve evidence."
+- **(c) New failure mode?** "Yes, a new caveat: deploy had
+  `{AGREE:4, TIMEOUT:1}` and `hashesIdentical=false`, with one
+  timeout-associated outlier result hash... Do not call that parser
+  divergence; deploy does not hit ESPN. Treat it as Bradbury validator
+  timeout / infra / latency evidence, not as an app-level slug failure."
+- **(d) Final bradbury-readiness?** "`04_v4` is **not Bradbury-ready
+  yet**. More precise label: **slug-fixed, deployed, resolve pending,
+  readiness unproven**. The deploy is acceptable by majority, but not
+  strict 5/5. The resolve evidence, which is the real test for the
+  HTTP-acquisition divergence, is absent."
+- **Next step:** "Poll the existing resolve tx first:
+  `0xc6943094...df7ea`. Do not retry before polling; retrying is a new
+  write and can muddy the run if the first resolve later lands. If the
+  existing tx eventually lands 5/5 AGREE with matching hashes, mark
+  Phase 7 as N=1 success, not broad readiness. If it stays stuck or
+  errors, classify that exact terminal state, then consider a
+  controlled retry after checking the contract is still unresolved."
+
+### Final structured-API thesis verdict (Phase 7)
+
+**NOT VALIDATED.** Phase 7 is inconclusive because the resolve tx did
+not reach a terminal vote before the run wrapper exited. The lab must
+poll the pending resolve tx before drawing a verdict.
+
+Two possible terminal states, both meaningful:
+1. If resolve lands 5/5 AGREE with matching validator/leader hashes →
+   thesis fully validated at N=1 (structured JSON + working endpoint
+   closes the leader-vs-validator HTTP divergence for this specific
+   run). Production would still require multiple repeat runs before
+   calling any pattern bradbury-ready.
+2. If resolve lands with mixed hashes or non-AGREE votes → the Phase 6
+   diagnosis (HTTP-acquisition nondeterminism between leader and
+   validator set) is confirmed as a real architectural blocker even
+   with a working endpoint, and the structured-API pattern still needs
+   further work before being trusted on Bradbury.
+
+### What we learned in Phase 7 (locked)
+
+1. **Bradbury deploy can drop a validator to TIMEOUT even on
+   deterministic bootstrap.** Phase 7 deploy landed 4 AGREE + 1 TIMEOUT
+   with a hash outlier on the timing-out validator, despite `__init__`
+   doing zero external I/O. This is an infra/timing event, not a
+   contract-logic event — but it does mean "deploy 5/5 AGREE" cannot be
+   assumed on Bradbury even for the simplest bootstrap.
+2. **Stop-hook / poll-budget mismatch produces SKIPPED verdicts.** The
+   run wrapper exited (Stop hook) at ~236s while the resolve tx was
+   still legitimately COMMITTING inside the 15-minute budget. Lab
+   discipline: SKIPPED is not a verdict — it is "we did not wait long
+   enough to get one." Any future run that reports SKIPPED must be
+   followed by an out-of-band poll of the tx hash before claims are
+   made.
+3. **Source-level fix is necessary but not sufficient.** The slug fix
+   is real and correct in deployed source, but does not by itself
+   demonstrate consensus. Only a terminal on-chain vote does.
+4. **The Bradbury lab discipline holds:** vote vector first, hash
+   analysis second, thesis claims third. Phase 7 has zero vote vector
+   evidence for the resolve, so it has zero thesis-validation evidence
+   for the resolve — regardless of how good the source-level fix looks.
+
+### Lab / experimental framing
+
+This is `experiments/bradbury/` — a research/lab area for GenLayer oracle
+patterns on Bradbury testnet. NOT production. Production World Cup
+settlement uses studionet via `worldcupMatchAutoSettler.ts`. Nothing in
+Phase 7 changes production behavior, and no verdict here should be read
+as a production readiness signal. The lab exists to characterize
+consensus behavior across oracle shapes so we can pick the right pattern
+for future oracles — Phase 7 leaves the 04_v4 characterization
+open-ended pending the resolve tx.

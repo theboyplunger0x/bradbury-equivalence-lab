@@ -17,7 +17,7 @@
 #   API: ESPN's free, no-API-key scoreboard. Specifically, the per-event
 #   "summary" endpoint:
 #
-#     https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.worldcup/summary?event={espn_event_id}
+#     https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/summary?event={espn_event_id}
 #
 #   The response is a deterministic JSON document with explicit fields:
 #     header.competitions[0].competitors[] → home/away team + score
@@ -115,7 +115,7 @@ RESOLVABLE_OUTCOMES = {"TEAM_A_WIN", "TEAM_B_WIN", "DRAW"}
 # header + competitors + status. We construct the URL deterministically from
 # the constructor arg `espn_event_id` so leader and validator hit the SAME URL.
 ESPN_SUMMARY_URL = (
-    "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.worldcup/"
+    "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/"
     "summary?event={event_id}"
 )
 
