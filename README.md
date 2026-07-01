@@ -2376,11 +2376,13 @@ on shared wallet prevents parallel).
 
 ### Data
 
-| Contract | N | Deploy AGREE | Resolve AGREE | End-to-end clean | Median total | P95 total |
+| Contract | N | Deploy AGREE | Resolve AGREE | End-to-end clean | Median total | Tail sample (max) |
 |---|---|---|---|---|---|---|
 | `02_price_no_llm_v3` (no LLM, DexScreener JSON int) | 10 | 8/10 (80%) | 7/10 (70%) | **7/10 (70%)** | 28s | 189s |
 | `04_worldcup_enum_v4` (structured JSON + web I/O per validator) | 15 | 13/15 (87%) | 8/15 (53%) | **8/15 (53%)** | 30s | 244s |
 | `03_price_llm_field_only_v3` (LLM at leader + validator re-derive) | 5 | 1/5 (20%) | 0/5 + 1 DV | **0/5 (0%)** | 214s | 214s |
+
+> **N here is intentionally small — treat the "tail sample" column as tail sampling, not a statistically valid p95 / SLA claim.** It's the observed max within each batch (a "worst-case we saw" anchor), not a distribution percentile. A real p95 needs N in the hundreds at minimum; these batches are sized to shake out failure *modes*, not to characterize the tail of a distribution.
 
 Raw batch logs: [`logs/phase9-04v4-bradbury-N15.log`](logs/phase9-04v4-bradbury-N15.log),
 [`logs/phase9-02v3-bradbury-N10.log`](logs/phase9-02v3-bradbury-N10.log),
@@ -2413,8 +2415,10 @@ Runner scripts (bradbury or localnet, per-run budget, JSON emit format):
    derive" pattern needs either `gl.eq_principle.prompt_comparative`
    or a very tight determinism gate to work on bradbury.
 
-4. **P95 latencies are alarming for FUD's UX**: 189s / 244s / 214s.
-   Any of these on the price-oracle path would break the "2-minute
+4. **Tail-sample latencies are alarming for FUD's UX**: 189s / 244s /
+   214s (observed max per batch — small-N tail sampling, not a true
+   p95). Even as tail samples rather than SLA numbers, anything close
+   to these on the price-oracle path would break the "2-minute
    settlement" experience.
 
 ### Lessons locked (Phase 9)
@@ -2505,3 +2509,47 @@ Still LAB. Production FUD price + WC settlement stays on studionet.
 Phase 9b just re-classifies our own observation methodology: what we
 were counting as "failures" were actually just "client impatience."
 
+
+
+---
+
+## Phase 10 prep — 05_v1 (canonical LLM prompt_comparative pattern)
+
+**Why**: Phase 9 tested `03_price_llm_field_only_v3` — a "leader runs LLM,
+validators deterministically re-derive integer" pattern that hit DV on
+resolve. But that is NOT the canonical LLM pattern per the GenLayer docs,
+and it is NOT what FUD's production `betting_escrow.py` actually uses.
+Production uses `gl.eq_principle.prompt_comparative(fetch_and_parse,
+principle="...")` — each validator re-runs the same fetch+prompt and the
+principle judges equivalence. Saying "LLM is broken on bradbury" based on
+the 03 pattern alone was overreach.
+
+**What we built**: `05_price_llm_comparative_v1.py` — a minimal lab
+contract that mirrors the prod escrow's LLM+prompt_comparative flow (same
+`fetch_and_parse` closure, same principle string), stripped of all
+business logic so bradbury 5-validator behavior is isolated to the
+consensus pattern alone. Runner header uses the pinned content-addressed
+hash (`py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6`)
+instead of prod's bradbury-incompatible `:latest`.
+
+**Also patched**: `scripts/batchRunV4.ts` (and new
+`scripts/batchRunV05.ts`) now capture per-validator identity in the
+RUN:: JSON output — six new fields (`deployVotesArray`,
+`deployValidatorAddresses`, `deployValidatorHashes`, and the resolve
+variants). Previously we only kept aggregate counts like `{AGREE:4,
+TIMEOUT:1}`, which hid whether the same validator kept timing out
+(broken infra) or different validators each time (liveness variance).
+The distinction radically changes diagnosis; we now capture the raw
+ordered array so post-hoc analysis can answer it.
+
+**Next**: run N=10 of `05_v1` on bradbury with the patched runner. If
+`prompt_comparative` converges 5/5 (or 4/5 eventual) like the no-LLM
+paths, our "no LLM" decision needs a caveat: it was scoped to the wrong
+LLM shape. If it fails, we finally have evidence-backed reason to skip
+LLM on bradbury for FUD.
+
+### Framing
+
+Still LAB / experimental. Production FUD price + WC settlement stays on
+studionet. This phase corrects our own methodology (tested the wrong LLM
+pattern), it does not touch production behavior.

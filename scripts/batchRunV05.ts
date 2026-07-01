@@ -1,31 +1,27 @@
-// Batch runner: execute N sequential deploy+resolve cycles of 04_worldcup_enum_v4
-// on a chosen network (bradbury OR localnet), with a per-run time budget, and
-// emit structured JSON per run so downstream analysis can compute stats.
+// Batch runner: execute N sequential deploy+resolve cycles of
+// 05_price_llm_comparative_v1 on a chosen network (bradbury OR localnet),
+// with a per-run time budget, and emit structured JSON per run so downstream
+// analysis can compute stats.
 //
-// This is the Phase-7b statistical validation harness in a single process:
-// - reuses the Phase 5d classifier + Phase 5e success-path parser from
-//   deployBradburyV4Worldcup.ts (DV-precedence, FINISHED_WITH_RETURN, votes at
-//   lastRound.validatorVotesName, contract address at top-level recipient).
-// - fresh wallet per network:
-//     bradbury -> uses the funded test wallet at
-//                 /Users/lanzanimarcos7/.cache/genlayer-test-wallet.txt
-//     localnet -> generates a fresh key each run and asks the localnet
-//                 simulator to fund it via `sim_fundAccount` (the JSON-RPC
-//                 extension exposed by genlayer-js on chains with isStudio=true).
-// - per-run time budget: hard cap on the wall time of one deploy+resolve cycle;
-//   split as budget/2 for deploy poll, remaining for resolve poll.
-// - emits one JSON line per run prefixed `RUN::` plus a `BATCH_SUMMARY::` line
-//   at the end with aggregate verdict counts + median/p95 elapsed timings.
+// Mirror of batchRunV4.ts with these differences:
+//   - contract: 05_price_llm_comparative_v1.py
+//   - constructor args: (symbol="BTC", dex_url=<DexScreener BTC search URL>)
+//   - default per-run budget: 480s (LLM contracts are slower than V4 enum)
+//
+// The receipt parser and RUN::/BATCH_SUMMARY:: emission format are identical
+// to V4, including the per-validator identity fields
+// (deployVotesArray, deployValidatorAddresses, deployValidatorHashes and the
+// resolve equivalents) that preserve which specific validator cast which vote.
 //
 // Usage (from /backend):
-//   node_modules/.bin/tsx scripts/batchRunV4.ts <network> <N> [budgetSeconds]
+//   node_modules/.bin/tsx scripts/batchRunV05.ts <network> <N> [budgetSeconds]
 //     network        : "bradbury" | "localnet"
 //     N              : integer in [1..50]
-//     budgetSeconds  : optional, default 300 (per run)
+//     budgetSeconds  : optional, default 480 (per run)
 //
 // Example:
-//   node_modules/.bin/tsx scripts/batchRunV4.ts bradbury 10 300
-//   node_modules/.bin/tsx scripts/batchRunV4.ts localnet 25 120
+//   node_modules/.bin/tsx scripts/batchRunV05.ts bradbury 10 480
+//   node_modules/.bin/tsx scripts/batchRunV05.ts localnet 25 240
 
 import { readFileSync, existsSync } from "node:fs";
 import { resolve as resolvePath } from "node:path";
@@ -44,18 +40,18 @@ const WALLET_FILE = "/Users/lanzanimarcos7/.cache/genlayer-test-wallet.txt";
 const BRADBURY_DIR = resolvePath(
   "/Users/lanzanimarcos7/Desktop/Proyectos/FUDmarkets/experiments/bradbury",
 );
-const V4_FILE = "04_worldcup_enum_v4.py";
+const CONTRACT_FILE = "05_price_llm_comparative_v1.py";
 
-// Real 2022 World Cup Final (see deployBradburyV4Worldcup.ts for provenance).
-const TEAM_A = "Argentina";
-const TEAM_B = "France";
-const ESPN_EVENT_ID = "633850";
+// Real DexScreener search URL (same shape used by betting_escrow.py /
+// 03_price_llm_field_only_v3.py).
+const PRICE_SYMBOL = "BTC";
+const PRICE_DEX_URL = "https://api.dexscreener.com/latest/dex/search?q=BTC";
 
 // Localnet default fund: 100 GEN (in wei, 18 decimals).
 const LOCALNET_FUND_WEI = 100n * 10n ** 18n;
 
 const POLL_INTERVAL_MS = 5_000; // per task spec: poll every 5s
-const DEFAULT_BUDGET_SECONDS = 300;
+const DEFAULT_BUDGET_SECONDS = 480;
 
 const DECIDED_STATES = new Set([
   "FINALIZED",
@@ -153,7 +149,7 @@ const isDecided = (s: unknown): boolean => {
 };
 
 const loadContractCode = (): string =>
-  readFileSync(resolvePath(BRADBURY_DIR, V4_FILE), "utf-8");
+  readFileSync(resolvePath(BRADBURY_DIR, CONTRACT_FILE), "utf-8");
 
 const readBradburyPrivateKey = (): `0x${string}` => {
   if (!existsSync(WALLET_FILE)) {
@@ -500,7 +496,7 @@ async function buildClient(network: Network): Promise<ClientBundle> {
 }
 
 // ---------------------------------------------------------------------------
-// Single run: deploy + resolve of one v4 contract.
+// Single run: deploy + resolve of one 05_price_llm_comparative_v1 contract.
 // ---------------------------------------------------------------------------
 
 function makeSkippedStage(reason: string): StageResult {
@@ -578,7 +574,7 @@ async function runOnce(
       client as { deployContract: (a: unknown) => Promise<unknown> }
     ).deployContract({
       code,
-      args: [TEAM_A, TEAM_B, ESPN_EVENT_ID],
+      args: [PRICE_SYMBOL, PRICE_DEX_URL],
     })) as `0x${string}`;
     deployHashStr = deployHash;
     // eslint-disable-next-line no-console
@@ -781,7 +777,7 @@ function parseArgs(argv: readonly string[]): {
   const [rawNet, rawN, rawBudget] = argv;
   if (!rawNet || !rawN) {
     throw new Error(
-      "usage: tsx scripts/batchRunV4.ts <bradbury|localnet> <N> [budgetSeconds]",
+      "usage: tsx scripts/batchRunV05.ts <bradbury|localnet> <N> [budgetSeconds]",
     );
   }
   if (rawNet !== "bradbury" && rawNet !== "localnet") {
@@ -810,7 +806,7 @@ async function main(): Promise<void> {
 
   // eslint-disable-next-line no-console
   console.log(
-    `[batchRunV4] network=${network} N=${n} budgetSeconds=${budgetSeconds} startedAt=${startedAtIso}`,
+    `[batchRunV05] network=${network} N=${n} budgetSeconds=${budgetSeconds} startedAt=${startedAtIso}`,
   );
 
   const runs: RunResult[] = [];

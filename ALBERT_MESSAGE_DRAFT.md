@@ -17,7 +17,7 @@ N=10 on bradbury:
 - deploy: 8/10 AGREE_SUCCESS, 2 TIMEOUT (5-validator committee never converged in 240s)
 - resolve: 7/10 AGREE_SUCCESS, 1 TIMEOUT, 2 SKIPPED (deploy failed)
 - end-to-end clean: 7/10 = 70%
-- median total 28s, p95 189s
+- median total 28s, worst-case observed 189s (N=10 tail sample, not a real p95)
 - zero DVs, zero DISAGREEs on any run
 
 ## contract 2 — structured JSON + web I/O per validator
@@ -26,7 +26,7 @@ N=15 on bradbury:
 - deploy: 13/15 AGREE_SUCCESS, 2 TIMEOUT
 - resolve: 8/15 AGREE_SUCCESS, 5 TIMEOUT, 2 SKIPPED
 - end-to-end clean: 8/15 = 53%
-- median 30s, p95 244s
+- median 30s, worst-case observed 244s (N=15 tail sample, not a real p95)
 - zero DVs, zero DISAGREEs. when it completes, all 5 validators produce byte-identical hashes.
 
 ## contract 3 — LLM at leader + validator re-derive

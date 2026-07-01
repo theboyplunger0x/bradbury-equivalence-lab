@@ -11,11 +11,13 @@
 
 ## Data (bradbury only, N=30 total)
 
-| Contract | N | Deploy AGREE | Resolve AGREE | End-to-end clean | Median total | P95 total |
+| Contract | N | Deploy AGREE | Resolve AGREE | End-to-end clean | Median total | Tail sample (max) |
 |---|---|---|---|---|---|---|
 | 02_v3 (no LLM) | 10 | 8/10 (80%) | 7/10 (70%) | **7/10 (70%)** | 28s | 189s |
 | 04_v4 (JSON + web) | 15 | 13/15 (87%) | 8/15 (53%) | **8/15 (53%)** | 30s | 244s |
 | 03_v3 (LLM) | 5 | 1/5 (20%) | 0/5 (+1 DV) | **0/5 (0%)** | 214s | 214s |
+
+> N here is intentionally small — treat the "tail sample" column as tail sampling, not a statistically valid p95 / SLA claim. It's the observed max within each batch, useful as a "worst-case we saw" anchor, not a distribution percentile.
 
 Detailed BATCH_SUMMARY JSON in `/tmp/batch-{04v4-brad-N15,02v3-brad-N10,03v3-brad-N5}.log`.
 
@@ -25,7 +27,7 @@ Detailed BATCH_SUMMARY JSON in `/tmp/batch-{04v4-brad-N15,02v3-brad-N10,03v3-bra
 2. **Even no-LLM contracts have ~30-50% failure on bradbury.** Not catastrophic but not production-grade without retry logic.
 3. **Web I/O adds ~15pp variance.** 04 (JSON + web I/O per validator) is 53% vs 02 (JSON only) 70%. Suggests fetching data during resolve adds some entropy.
 4. **First DV observed in resolve stage** on the one 03_v3 that got past deploy. LLM validators produced different result hashes — validator re-derivation of the leader's LLM output failed to converge.
-5. **P95 latencies are alarming**: 189s / 244s / 214s. If any of these are on the price-oracle path in prod, we lose the "2-minute settlement" UX.
+5. **Tail-sample latencies are alarming**: 189s / 244s / 214s (observed max per batch — small-N tail sampling, not a true p95). If anything close to these lands on the price-oracle path in prod, we lose the "2-minute settlement" UX.
 
 ## Overnight timeline (actual)
 

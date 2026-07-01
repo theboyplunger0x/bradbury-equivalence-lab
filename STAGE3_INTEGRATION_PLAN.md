@@ -103,7 +103,7 @@ Phase A — build (behind `BRADBURY_SHADOW_ENABLED` env flag, default off):
 Phase B — canary flag ON (dev/staging):
 4. Flip flag ON in staging for 1 week
 5. Watch `bradbury_shadow_results` for: agreement rate, latency distribution, error patterns
-6. Success criteria: >=60% agreement + latency p95 < 60s
+6. Success criteria: >=60% agreement + latency tail (max observed in the staging window, N>=100) < 60s. Once staging N is large enough to compute a real p95, tighten this to "p95 < 60s over rolling 24h."
 
 Phase C — canary flag ON (production, invisible):
 7. Flip flag ON in prod
