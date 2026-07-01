@@ -2213,3 +2213,142 @@ as a production readiness signal. The lab exists to characterize
 consensus behavior across oracle shapes so we can pick the right pattern
 for future oracles — Phase 7 leaves the 04_v4 characterization
 open-ended pending the resolve tx.
+## Phase 7b — statistical validation (N=4)
+
+Phase 7 landed a single, mostly-successful `04_v4` run against Bradbury on the
+slug-fixed (`fifa.world`) ESPN endpoint but left the actual production-readiness
+call unproven: one poll of the pending resolve tx from Phase 7 (`phase7_resolve_poll`),
+plus three fresh deploy+resolve rounds (`round1`, `round2`, `round3`).
+Phase 7b re-runs the `04_v4` (WorldcupEnumV4) contract on Bradbury multiple
+times to characterize *how often* the deploy+resolve pair hits a clean 5/5
+AGREE with byte-identical validator hashes, and to catch any recurring
+failure modes.
+
+### Setup
+
+- Contract: `experiments/bradbury/04_worldcup_enum_v4.py` (WorldcupEnumV4).
+  ESPN slug remains fixed (`fifa.world`, not `fifa.worldcup`) — no source
+  changes since Phase 7.
+- Constructor args: `["Argentina", "France", "633850"]` (2022 WC Final,
+  ESPN event id 633850).
+- Deployer wallet: `0x186d2dabBE79810A6F3cBD8C09033E96C767c121`, live
+  bradbury balance ~118.98 GEN at run start.
+- Runner: `backend/scripts/deployBradburyV4Worldcup.ts`, extended with an
+  optional label CLI arg + `RESULT::<label>::…` emission so a parent
+  orchestrator can disambiguate parallel runs. Poll interval 10s, budget
+  15min per stage.
+- 4 total runs: 1 pending-poll of the Phase 7 resolve tx, then 3 fresh
+  deploy+resolve cycles.
+
+### Per-run table
+
+| run label            | deploy verdict  | resolve verdict | validator hashes identical (deploy / resolve) | leader agrees (deploy / resolve) | notes                                                                                     |
+|----------------------|-----------------|-----------------|------------------------------------------------|----------------------------------|-------------------------------------------------------------------------------------------|
+| `phase7_resolve_poll` | n/a (poll only) | AGREE_SUCCESS   | n/a / **false** (1 TIMEOUT validator with divergent hash) | n/a / partial (leader matches 3/4 non-leader validators, forming 4/5 AGREE quorum) | Terminal poll of Phase 7 resolve tx `0xc6943094…`. `lastRound` votes `[TIMEOUT, AGREE, AGREE, AGREE(leader), AGREE]`. Non-TIMEOUT hashes match; TIMEOUT validator diverges. Majority AGREE + FINISHED_WITH_RETURN + ACCEPTED → AGREE_SUCCESS. Contract `0x61B55b1F7a42649bCb6Dcf4Aa933095E3dD19793`, 0 rounds. |
+| `round1`             | AGREE_SUCCESS   | AGREE_SUCCESS   | **true** / **true**                            | true (unanimous 5/5) / true (unanimous 5/5) | Fresh deploy+resolve, 22.3s total. Deploy hash `0xe9e52d98…`, contract `0x52ec4960fF69d06ec7Cc9DdF54A3b8F4A218D9B4`, resolve `0x4482a961…`. Both stages ACCEPTED / FINISHED_WITH_RETURN, 5/5 AGREE, byte-identical validatorResultHash across all 5 validators on both stages. lastRound.result=1 on both. |
+| `round2`             | AGREE_SUCCESS   | AGREE_SUCCESS   | **true** / **true**                            | true (unanimous 5/5) / true (unanimous 5/5) | Fresh deploy+resolve, 32.0s total (excluding one aborted attempt on a nonce race — “tx nonce 16, next 17” — with a parallel run on the same shared wallet; immediate retry succeeded). Deploy hash `0x1d20bd…97d144`, contract `0x52CBe34C9Cc7030e0819b0AC5930Aa1Dd73609f8`, resolve hash `0x5921488…22e26c`. Both 5/5 AGREE, byte-identical validator hashes. |
+| `round3`             | AGREE_SUCCESS   | PENDING         | **false** / n/a                                | true (leader in AGREE majority) / n/a | Deploy AGREE_SUCCESS 4/5 (1 TIMEOUT on validator index 2; hash `0x9fc8d2d9…` differs from majority `0x485c89e9…`), leader (index 4) AGREE. Contract `0x5c04bCc138b54b8c3B8DF7317aC4D04F5aaeAcbC` deployed after ~404s (~383s in COMMITTING alone). Resolve tx `0xfea17fbc…` submitted, still polling COMMITTING at ~214s elapsed when session stop-hook fired. Background runner (`bcbc5g2oj`) continues; parent must poll or re-invoke for terminal resolve verdict. |
+
+### Aggregate
+
+- **Deploy verdict:** 3/3 fresh deploys AGREE_SUCCESS.
+- **Resolve verdict:** 2/3 fresh resolves AGREE_SUCCESS + 1/3 PENDING (round3
+  resolve still COMMITTING at cutoff). Plus 1 poll of Phase 7 resolve →
+  AGREE_SUCCESS.
+- **Clean 5/5 AGREE with byte-identical validator hashes (both stages,
+  N=4):** 2/4 (`round1`, `round2`).
+- **AGREE_SUCCESS but with a TIMEOUT / hash-diverging validator:** 2/4
+  (`phase7_resolve_poll`, `round3` deploy).
+- **DV (5/5 DISAGREE, deterministic violation):** 0/4.
+- **PENDING at cutoff:** 1/4 (`round3` resolve).
+
+So: **2/4 clean unanimous, 2/4 quorum-with-outlier, 0/4 DV, 1/4 (resolve
+stage of round3) unresolved.**
+
+### Codex verbatim verdict
+
+> **Thesis validated at N=4?** No. `thesisValidatedN4=false`.
+>
+> **Split-pattern explanation.** The deterministic contract path looks
+> clean only when all validators complete: rounds 1 and 2 produced 5/5
+> AGREE with byte-identical hashes. The degraded cases are not semantic
+> disagreement: they are recurring single-validator TIMEOUT plus slow
+> COMMITTING/finality behavior. Hypothesis: validator/network liveness or
+> Bradbury commit-finalization instability, not ESPN JSON parsing or
+> no-LLM nondeterminism.
+>
+> **New failure modes.**
+> - Recurring TIMEOUT validator despite zero DISAGREE/DV.
+> - Very long COMMITTING phase on deploy, approximately 383s inside a
+>   404s deploy path.
+> - Resolve stuck PENDING/COMMITTING past the observation window.
+>
+> **Final Bradbury readiness.** NOT-READY-INVESTIGATE.
+>
+> **Verdict.** 04_v4 proves deterministic hashes among completed
+> validators, but it does not prove reliable 5-validator Bradbury
+> consensus.
+
+### Final structured-API thesis status: **STILL-UNPROVEN**
+
+Phase 7b's clean rounds (`round1`, `round2`) show that when all 5 Bradbury
+validators actually complete their tick, `04_v4` produces byte-identical
+`validatorResultHash` across the committee — this is the strongest evidence
+so far that the ESPN structured-JSON path is *itself* deterministic and
+free of leader-vs-validator HTTP nondeterminism.
+
+But the remaining N=2 runs (`phase7_resolve_poll`, `round3` deploy) each
+recorded a TIMEOUT validator with a diverging hash, and `round3`'s resolve
+never reached a terminal vote inside the observation window. The failure
+mode is **not** DV (0/4), so this is not a re-emergence of the Phase 6
+HTTP-acquisition nondeterminism. It is a Bradbury *liveness* / commit-
+finalization instability — a network property, not a contract property.
+
+Bottom line: 04_v4 is deterministic when the committee is healthy, and it
+is Bradbury-ready **conditional** on Bradbury itself being healthy — which
+is currently a 2/4 event. That is enough to lock the source-level thesis
+(structured JSON + fixed endpoint eliminates the Phase 6 divergence) but
+not enough to lock a Bradbury production-readiness call.
+
+### Lessons locked (Phase 7b)
+
+1. **The `04_v4` contract path is deterministic when the committee
+   completes.** N=2 clean unanimous runs with byte-identical hashes across
+   both deploy and resolve stages is meaningful signal that the ESPN
+   structured-JSON acquisition path is *itself* free of leader-vs-
+   validator nondeterminism — the Phase 6 divergence really was a slug
+   bug plus HTTP variance, and 04_v4 closes it.
+2. **Bradbury liveness is now the dominant risk, not contract
+   determinism.** The failure mode across the non-clean runs is TIMEOUT +
+   very long COMMITTING (383s on one deploy), never DV. This is a
+   validator/network property, not a contract property, and it is not
+   addressable by any change inside `04_v4`.
+3. **SKIPPED / PENDING is still not a verdict.** Round3 resolve is
+   incomplete; the background runner (`bcbc5g2oj`) must be polled or
+   re-invoked to yield a terminal state before Phase 7b is closed.
+   Reaffirms the Phase 7 lab discipline: never quote a verdict on an
+   in-flight tx.
+4. **Shared wallet nonce contention is a real parallel-run hazard.**
+   Round2's initial attempt aborted immediately on `tx nonce 16, next
+   17` from a concurrent run on the same deployer wallet
+   (`0x186d2dab…7c121`). The runner's per-round `RESULT::<label>::…`
+   labeling helps disambiguate but does not serialize nonces — parallel
+   runs must either use distinct deployer wallets or an external mutex
+   on submission.
+5. **N=4 is still too small a sample.** 2/4 clean is not a
+   production-readiness distribution. A tighter Bradbury-readiness call
+   needs (a) at least N≥10, (b) instrumentation of the COMMITTING-phase
+   latency distribution, and (c) a policy on how to handle single-
+   validator TIMEOUT (accept as majority quorum? re-run? both?).
+
+### Lab / experimental framing
+
+This is `experiments/bradbury/` — a research/lab area for GenLayer oracle
+patterns on Bradbury testnet. **NOT production.** Production World Cup
+settlement uses studionet via `worldcupMatchAutoSettler.ts`; nothing in
+Phase 7b changes production behavior, and no verdict here should be read
+as a production readiness signal. The lab exists to characterize
+consensus behavior across oracle shapes so we can pick the right pattern
+for future oracles — Phase 7b confirms that `04_v4` is the correct
+source-level shape but leaves the Bradbury operating envelope
+(liveness / commit finalization) as the next open question.
