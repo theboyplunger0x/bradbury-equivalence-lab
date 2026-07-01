@@ -2444,3 +2444,64 @@ path.
 See `MORNING_BRIEF.md`, `ALBERT_MESSAGE_DRAFT.md`, and
 `STAGE3_INTEGRATION_PLAN.md` at the repo root for the operator-facing
 summary + proposed follow-ups.
+
+
+---
+
+## Phase 9b — re-poll evidence (~10 hours after Phase 9)
+
+**Setup**: after Phase 9, we hypothesized that the 14 client-TIMEOUT txs
+in that batch weren't actually dead — Bradbury's protocol may accept
+4-of-5 quorum natively, and our 240s client polling budget was expiring
+before the network reached terminal state. Re-polled the 14 TIMEOUTs
+via `client.getTransaction` after ~10 hours of Bradbury time.
+
+**Result**: **14 of 14 finalized as `AGREE_SUCCESS`** with
+`FINISHED_WITH_RETURN` execution status. Every single one landed with
+`[4 AGREE, 1 TIMEOUT]` in the vote array. Empirical confirmation that
+Bradbury accepts 4-of-5 quorum today, and our earlier "30-50% failure
+rate" was client-side polling budget expiring before the terminal
+state — not protocol failure.
+
+### Re-scoped Phase 9 numbers (with Bradbury-terminal semantics)
+
+| Contract | N | End-to-end (client 240s) | End-to-end (Bradbury terminal, ~10h later) |
+|---|---|---|---|
+| `02_price_no_llm_v3` (no LLM) | 10 | 7/10 (70%) | **10/10 (100%)** |
+| `04_worldcup_enum_v4` (JSON + web) | 15 | 8/15 (53%) | **15/15 (100%)** |
+| `03_price_llm_field_only_v3` (LLM) | 5 | 0/5 (0%) | 5/5 deploy + 1 resolve observed = **DV** (the only DV of the lab) |
+
+Full re-poll receipts in `logs/phase9b-repoll-results.json`. All 14 txs
+show `status=FINALIZED, exec=FINISHED_WITH_RETURN, votes={AGREE:4, TIMEOUT:1}`.
+
+### What this changes
+
+1. **The Bradbury 4-of-5 quorum question in the Albert message is
+   basically self-answered by empirical evidence.** Non-LLM contracts
+   are effectively 100% terminal-successful, just not always within a
+   240s client window.
+
+2. **UX implication for FUD**: any product built on Bradbury needs
+   asynchronous settlement semantics — "market resolving..." states
+   that can persist minutes past submission. **Not** a synchronous
+   "wait 30s and see result" flow.
+
+3. **LLM signal on RESOLVE still holds.** The one 03_v3 resolve we
+   actually observed hit DV — validators re-deriving the leader's
+   LLM output failed to converge. The four remaining 03_v3 deploys
+   that finalized never had their resolve attempted (the batch
+   runner skipped resolve when deploy verdict wasn't AGREE_SUCCESS
+   within its client budget). So the DV rate on LLM resolve is
+   1/1 observed, not 1/5.
+
+4. **Stage 3 shadow canary just got much more viable.** If Bradbury
+   is effectively 100% terminal on non-LLM paths, the design shifts
+   from "canary with retry logic" to "canary with async settlement
+   window."
+
+### Lab / experimental framing
+
+Still LAB. Production FUD price + WC settlement stays on studionet.
+Phase 9b just re-classifies our own observation methodology: what we
+were counting as "failures" were actually just "client impatience."
+
