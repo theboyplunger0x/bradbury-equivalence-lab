@@ -1,17 +1,17 @@
 # { "Depends": "py-genlayer:1jb45aa8ynh2a9c9xn3b7qqh8sm5q93hwfp7jqmwsfhh8jpz09h6" }
 
 # Lab contract 05 v1 — price oracle testing the canonical
-# `gl.eq_principle.prompt_comparative` pattern from our PROD betting_escrow.
+# `gl.eq_principle.prompt_comparative` pattern from our production escrow.
 #
 # What this contract is for:
-#   Production `backend/src/intelligent-oracles/betting_escrow.py` uses the
+#   Our production escrow oracle uses the
 #   `gl.eq_principle.prompt_comparative(fetch_and_parse, principle=...)` LLM
 #   pattern to resolve exit price. We have NOT yet verified whether that
 #   pattern actually converges under bradbury's 5-validator consensus. This
 #   contract is the MINIMAL reproducer to test it in isolation — same call
 #   shape as prod, no escrow / no transfers / no business logic.
 #
-# Bradbury-compat differences vs prod betting_escrow.py:
+# Bradbury-compat differences vs the production escrow:
 #   1. Runner header: PINNED content-addressed hash (same as 02_v3 / 03_v3
 #      / 04_v4). Prod uses `py-genlayer:latest`, which bradbury rejects with
 #      "invalid runner id" (5/5 DISAGREE on bootstrap).
@@ -49,7 +49,7 @@ ERROR_LLM_ERROR = "[LLM_ERROR]"  # LLM misbehavior / unparseable output (non-det
 
 
 class PriceLlmComparative(gl.Contract):
-    # Market config — mirrors betting_escrow storage of these two fields.
+    # Market config — mirrors the production escrow's storage of these two fields.
     symbol: str
     dex_url: str
 
@@ -66,7 +66,7 @@ class PriceLlmComparative(gl.Contract):
     @gl.public.write
     def resolve(self):
         """Fetch price via LLM + eq_principle.prompt_comparative — the exact
-        pattern used by prod `betting_escrow.py:resolve()` (lines 55-77).
+        pattern used by our production escrow's `resolve()`.
 
         The leader and each validator INDEPENDENTLY run `fetch_and_parse`
         (web.get + LLM extract). `prompt_comparative` then adjudicates
@@ -84,7 +84,7 @@ class PriceLlmComparative(gl.Contract):
         dex_url = self.dex_url
 
         def fetch_and_parse():
-            # Mirror of prod betting_escrow.py:fetch_and_parse — same shape,
+            # Mirror of the production escrow's fetch_and_parse — same shape,
             # same 2000-char cap, same "return ONLY the price number"
             # instruction, so this contract is a faithful isolation of the
             # prod LLM pattern for the bradbury consensus test.
@@ -143,11 +143,11 @@ class PriceLlmComparative(gl.Contract):
                 )
 
             # PRIMITIVE return: bare string (SKILL.md item 5). Matches
-            # exactly the prod betting_escrow's fetch_and_parse return.
+            # exactly the production escrow's fetch_and_parse return.
             return trimmed
 
-        # CANONICAL PROD PATTERN — same call shape as
-        # backend/src/intelligent-oracles/betting_escrow.py lines 67-70.
+        # CANONICAL PROD PATTERN — same call shape as our production escrow's
+        # `resolve()` call to `gl.eq_principle.prompt_comparative`.
         price_str = gl.eq_principle.prompt_comparative(
             fetch_and_parse,
             principle="The price number must be exactly the same",
